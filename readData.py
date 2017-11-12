@@ -7,6 +7,7 @@ import math
 
 #hi
 #hi
+#testing changes
 
 def readCSV(inputfile):
 	inputInformation = pandas.read_csv(inputfile):
@@ -26,6 +27,7 @@ def readCSV(inputfile):
 				recipes[recipeName][currentEntry] = row['currentEntry'] #adds it to the list of ingredients if it is present in the ingredient list
 		numberOfRecipesRead += 1
 	print "numberOfRecipesRead: ", numberOfRecipesRead
+	print "hello"
 	return recipes
 
 def readIngredients(input): #reads the ingredient.txt in as a list
