@@ -4,6 +4,7 @@ import random
 import collections
 import sys
 import math
+import json
 
 #hi
 #hi
@@ -36,17 +37,22 @@ def readIngredients(input): #reads the ingredient.txt in as a list
 	content = [x.strip() for x in content]
 	return content
 
-
+def readInstructions(input):
+	pass
+	
+	
 def main():
-	if (len(sys.argv) != 3):
-		raise Exception("Usage: readData.py <inputfile>.csv <ingredientList>.txt")
+	if (len(sys.argv) != 4):
+		raise Exception("Usage: readData.py <inputfile>.csv <inputinstructions>.json <ingredientList>.txt")
 	print "This program will read in the csv file and generate data structures to hold the information. \
 	 It then looks at the ingredient list passed in and tries to generate a list of instructions to make a dish \
 	 using those recipes."
 	inputfile = sys.argv[1]
-	ingredientList = sys.argv[2]
+	instructions = sys.argv[2]
+	ingredientList = sys.argv[3]
 	recipesDict = readCSV(inputfile)
 	listOfIngredients = readIngredients(ingredientList)
+	readInstructions = readInstructions(instructions)
 
 	#do things and analyze
 
