@@ -39,6 +39,7 @@ def createCSP():
 			# add binary factor here with function: if ingredient == verb then return a high number, else return a lower number
 			# how to determine this number?? maybe start with arbitrary hihg and low numbers and then later figure out how to 
 			# set the weight to the number of times these two have occurred together
+			# idea: if binary factor exists, add binary factor does element wise multiplication
 			
   
   
