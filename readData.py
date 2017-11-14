@@ -5,13 +5,14 @@ import collections
 import sys
 import math
 import json
+import trainOnRecipes.py
 
 #hi
 #hi
 #testing changes
 
 def readCSV(inputfile):
-	inputInformation = pandas.read_csv(inputfile):
+	inputInformation = pandas.read_csv(inputfile)
 	allIngredientsPlusOtherThings = []
 	recipes = collections.defaultdict(collections.defaultdict(int)) #maps a recipe title to a list of ingredients needed
 	allColumns = []
@@ -54,5 +55,4 @@ def main():
 	listOfIngredients = readIngredients(ingredientList)
 	readInstructions = readInstructions(instructions)
 
-	#do things and analyze
-
+	trainOnRecipes.createCSP()
