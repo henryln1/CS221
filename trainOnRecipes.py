@@ -91,6 +91,7 @@ def main(listOfIngredients, allrecipeinstructions):
 	# toggle optimizations (ac3, etc) below
 	search.solve(csp)
 	assignment = search.optimalAssignment
+	print 'hi'
 	print assignment
 			
   
