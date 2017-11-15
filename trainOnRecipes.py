@@ -4,29 +4,44 @@
 import recipeUtil.py
 
 def createCSP():
-	max_ingredients = 10
+	max_ingredients = len(listOfIngredients):
 	csp = recipeUtil.CSP()
-  # add variable for each verb
+  	
 	with open('cooking_verbs.txt') as f:
 		verbs = f.readLines()
 	verbs = [x.strip() for x in verbs]
-  	for verb in verbs:
+
+# add variable for each verb	
+	for verb in verbs:
     		csp.add_variable(verb, [i for i in range(0, max_ingredients*2 + 1)])
-		#ensure verb always comes before ingredient
+		
+		# ensure verb always assigned before ingredient (aka verbs given odd assignments
 		csp.add_unary_factor(verb, lambda x: x == 0 or x % 2 != 0)
+		
+		for v in verbs: 
+			# ensure no verbs are given the same assignment
+			if v != verb:
+				csp.add_binary_factor(verb, v, lambda x, y: x != y)
 	
  # add variable for each ingredient in cumulative ingredients list
 	for ingredient in listOfIngredients:
 		csp.add_variable(ingredient, [i for i in range(0, max_ingredients + 1)])
-		#ensure ingredients are always after verbs - even assignment
-		csp.add_unary_factor(ingredient, lambda x: x == 0 or x % 2 == 0)
+		
+		# ensure ingredients are always assigned after verbs (aka ingredients given even assignmnets)
+		csp.add_unary_factor(ingredient, lambda x: x != 0 or x % 2 == 0)
 		
 		for verb in verbs:
-			# ensure only one verb/ingredient is assigned a number
-			csp.add_binary_factor(ingredient, verb, lambda x,y: x == 0 or y == 0 or x != y)
+			# ensure only one verb/ingredient is assigned a number 
+			csp.add_binary_factor(ingredient, verb, lambda x,y: x == 0 or y == 0 or x != y)		
+		
+		for ingredient2 in listOfIngredients:
+			# ensure each place in the order is assigned exactly one ingredient
+			if ingredient != ingredient2:
+				csp.add_binary_factor(ingredient, ingredient2, lambda x,y: x != y)
 
 
-#DONE:
+
+#DONE (below) :
   # iterate over each sentence in directions 
   # - identify ingredients in sentence
   # - identify verbs in sentence
@@ -37,7 +52,11 @@ def createCSP():
   # - add binary factor for order of ingredients 
   # (ie weight assignment of verb from sentence 1 higher if the assignment of verb 1 < assignment of verb 2)
   # add factors to constrain only one verb and ingredient to each assignment 1-20 (should go verb, ingredient, verb, ingredient etc.)
-  	ingredientsSet = set(listOfIngredients)
+
+#THINGS TO CONSIDER:
+# - this framework will only allow one verb per ingredient (no repeating verbs)
+  	
+	ingredientsSet = set(listOfIngredients)
 	verbsSet = set(verbs)
 	for instructions in allinstructions:
 		for sentence in instructions:
