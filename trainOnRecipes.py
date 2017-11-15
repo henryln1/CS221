@@ -82,6 +82,7 @@ def createCSP(listOfIngredients, allrecipeinstructions):
 
 			def ingredientAndVerb(x, y):
 				if x == y + 1:
+<<<<<<< HEAD
 					return 2
 				else:
 					return 1
@@ -91,6 +92,17 @@ def createCSP(listOfIngredients, allrecipeinstructions):
 				else:
 					#returning 1 to indicate no weight
 					return 1
+=======
+					return 1.5
+				else:
+					return .5
+			def verbBeforeIngredient(x, y):
+				if y > x:
+					return 1.5
+				else:
+					#returning 1 to indicate no weight
+					return .5
+>>>>>>> ae2fea27f0ae711c6dd92a5d17461e57ce30ad51
 
 			for ing in ingredientsInSentence:
 				for vrb in verbsInSentence:
