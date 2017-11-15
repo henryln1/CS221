@@ -3,7 +3,7 @@
 
 import recipeUtil.py
 
-def createCSP():
+def createCSP(listOfIngredients):
 	max_ingredients = len(listOfIngredients):
 	csp = recipeUtil.CSP()
   	
@@ -83,9 +83,15 @@ def createCSP():
 					if sentence.indexOf(vrb) > sentence.indexOf(ing):
 						csp.add_binary_factor(ing, vrb, verbBeforeIngredient)
 						
-			
+	return csp		
 				
-			
+def main():
+	csp = createCSP()
+	search = recipeUtil.BacktrackingSearch()
+	# toggle optimizations (ac3, etc) below
+	search.solve(csp)
+	assignment = search.optimalAssignment
+	print assignment
 			
   
   
