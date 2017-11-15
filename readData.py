@@ -61,4 +61,4 @@ def main():
 	listOfIngredients = readIngredients(ingredientList)
 	readInstructions = readInstructions(instructions)
 
-	trainOnRecipes.createCSP()
+	trainOnRecipes.createCSP(listOfIngredients, readInstructions)
