@@ -237,7 +237,8 @@ class BacktrackingSearch():
         @param numAssigned: Number of currently assigned variables
         @param weight: The weight of the current partial assignment.
         """
-
+        # print assignment 
+        print self.numOperations
         self.numOperations += 1
         assert weight > 0
 
