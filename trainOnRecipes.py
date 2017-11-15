@@ -3,8 +3,6 @@
 
 import recipeUtil.py
 
-
-
 def createCSP():
 	max_ingredients = 10
 	csp = recipeUtil.CSP()
@@ -13,33 +11,60 @@ def createCSP():
 		verbs = f.readLines()
 	verbs = [x.strip() for x in verbs]
   	for verb in verbs:
-    		csp.add_variable(verb, [i for i in range(0, max_ingredients + 1)])
+    		csp.add_variable(verb, [i for i in range(0, max_ingredients*2 + 1)])
+		#ensure verb always comes before ingredient
+		csp.add_unary_factor(verb, lambda x: x == 0 or x % 2 != 0)
 	
  # add variable for each ingredient in cumulative ingredients list
 	for ingredient in listOfIngredients:
-		csp.add_variable(verb, [i for i in range(0, max_ingredients + 1)])
+		csp.add_variable(ingredient, [i for i in range(0, max_ingredients + 1)])
+		#ensure ingredients are always after verbs - even assignment
+		csp.add_unary_factor(ingredient, lambda x: x == 0 or x % 2 == 0)
+		
+		for verb in verbs:
+			# ensure only one verb/ingredient is assigned a number
+			csp.add_binary_factor(ingredient, verb, lambda x,y: x == 0 or y == 0 or x != y)
 
 
+#DONE:
   # iterate over each sentence in directions 
   # - identify ingredients in sentence
   # - identify verbs in sentence
   # - add binary factor for each ingredient in each sentence and verbs in sentence
-  # - add binary factor for order of verbs in sentence
-  # - add binary factor for order of verbs from previous sentence to this sentence
+  # - add binary factor for when a verb comes before an ingredient - not optimal 
+#TO DO:
+  # - add binary factor for order of verbs from previous sentence to this sentence -
+  # - add binary factor for order of ingredients 
   # (ie weight assignment of verb from sentence 1 higher if the assignment of verb 1 < assignment of verb 2)
-  # add factors to constrain only one verb to each assignment 1-10 and only one ingredient to each assignment 1-10
+  # add factors to constrain only one verb and ingredient to each assignment 1-20 (should go verb, ingredient, verb, ingredient etc.)
   	ingredientsSet = set(listOfIngredients)
 	verbsSet = set(verbs)
-	previousSentenceVerbs = []
 	for instructions in allinstructions:
 		for sentence in instructions:
 			sentence = set(sentence)
 			ingredientsInSentence = sentence.intersection(ingredientsSet)
 			verbsInSentence = sentence.intersection(verbsSet)
 			# add binary factor here with function: if ingredient == verb then return a high number, else return a lower number
-			# how to determine this number?? maybe start with arbitrary hihg and low numbers and then later figure out how to 
-			# set the weight to the number of times these two have occurred together
-			# idea: if binary factor exists, add binary factor does element wise multiplication
+			def ingredientAndVerb(x, y):
+				if x == y and x != 0:
+					return 2
+				else:
+					return 1
+			for ing in ingredientsSet:
+				for vrb in verbsInSentence:
+					csp.add_binary_factor(ing, vrb, ingredientAndVerb)
+					def verbBeforeIngredient(x, y):
+						if x > y:
+							return 2
+						else:
+							#returning 1 to indicate no weight
+							return 1
+					if sentence.indexOf(vrb) > sentence.indexOf(ing):
+						csp.add_binary_factor(ing, vrb, verbBeforeIngredient)
+						
+			
+				
+			
 			
   
   
