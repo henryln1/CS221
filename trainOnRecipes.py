@@ -68,37 +68,37 @@ def createCSP(listOfIngredients, allrecipeinstructions):
 #THINGS TO CONSIDER:
   # - this framework will only allow one verb per ingredient (no repeating verbs)
   	
-	# ingredientsSet = set(listOfIngredients)
-	# verbsSet = set(verbs)
-	# for recipe in allrecipeinstructions:
-	# 	for sentence in recipe:
-	# 		sentence = sentence.lower()
-	# 		sentence = sentence.split(' ')
-	# 		sentenceSet = set(sentence)
-	# 		ingredientsInSentence = sentenceSet.intersection(ingredientsSet)
-	# 		verbsInSentence = sentenceSet.intersection(verbsSet)
+	ingredientsSet = set(listOfIngredients)
+	verbsSet = set(verbs)
+	for recipe in allrecipeinstructions:
+		for sentence in recipe:
+			sentence = sentence.lower()
+			sentence = sentence.split(' ')
+			sentenceSet = set(sentence)
+			ingredientsInSentence = sentenceSet.intersection(ingredientsSet)
+			verbsInSentence = sentenceSet.intersection(verbsSet)
 		
-	# 		# add binary factor here with function: if ingredient == verb then return a high number, else return a lower number
+			# add binary factor here with function: if ingredient == verb then return a high number, else return a lower number
 
-	# 		def ingredientAndVerb(x, y):
-	# 			if x == y + 1:
-	# 				return 1.5
-	# 			else:
-	# 				return .5
-	# 		def verbBeforeIngredient(x, y):
-	# 			if y > x:
-	# 				return 1.5
-	# 			else:
-	# 				#returning 1 to indicate no weight
-	# 				return .5
+			def ingredientAndVerb(x, y):
+				if x == y + 1:
+					return 2
+				else:
+					return 1
+			def verbBeforeIngredient(x, y):
+				if y > x:
+					return 2
+				else:
+					#returning 1 to indicate no weight
+					return 1
 
-	# 		for ing in ingredientsInSentence:
-	# 			for vrb in verbsInSentence:
-	# 				# add binary factor here with function: if ingredient == verb + 1 then return a high number, else return a lower number
-	# 				csp.add_binary_factor(ing, vrb, ingredientAndVerb)				
-	# 				# add binary factor to weight for verb coming before ingredient		
-	# 				if sentence.index(vrb) > sentence.index(ing):
-	# 					csp.add_binary_factor(ing, vrb, verbBeforeIngredient)
+			for ing in ingredientsInSentence:
+				for vrb in verbsInSentence:
+					# add binary factor here with function: if ingredient == verb + 1 then return a high number, else return a lower number
+					csp.add_binary_factor(ing, vrb, ingredientAndVerb)				
+					# add binary factor to weight for verb coming before ingredient		
+					if sentence.index(vrb) > sentence.index(ing):
+						csp.add_binary_factor(ing, vrb, verbBeforeIngredient)
 						
 	return csp		
 				
@@ -118,4 +118,5 @@ def main(listOfIngredients, allrecipeinstructions):
 		print assignment
 		if count > maxPrint:
 			break
+			
 			
