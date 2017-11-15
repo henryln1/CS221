@@ -42,11 +42,9 @@ def readInstructions(input):
 	data = json.load(open(input))
 	allrecipeinstructions = []
 	for recipe in data:
-		recipe = []
 		directions = recipe["directions"]
 		sentences = directions.split('.')
-		recipe.append(sentences)
-		allrecipeinstructions.append(recipe)
+		allrecipeinstructions.append(sentences)
 	return allrecipeinstructions
 	
 	
