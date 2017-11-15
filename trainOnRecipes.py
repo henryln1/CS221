@@ -3,7 +3,7 @@
 
 import recipeUtil.py
 
-def createCSP(listOfIngredients):
+def createCSP(listOfIngredients, allrecipeinstructions):
 	max_ingredients = len(listOfIngredients):
 	csp = recipeUtil.CSP()
   	
@@ -60,8 +60,8 @@ def createCSP(listOfIngredients):
   	
 	ingredientsSet = set(listOfIngredients)
 	verbsSet = set(verbs)
-	for instructions in allinstructions:
-		for sentence in instructions:
+	for recipe in allrecipeinstructions:
+		for sentence in recipe:
 			sentence = set(sentence)
 			ingredientsInSentence = sentence.intersection(ingredientsSet)
 			verbsInSentence = sentence.intersection(verbsSet)
