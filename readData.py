@@ -42,15 +42,9 @@ def readInstructions(input):
 	data = json.load(open(input))
 	allrecipeinstructions = []
 	for recipe in data:
-<<<<<<< HEAD
 		if len(recipe)!= 0:
 			directions = recipe["directions"]
-			allrecipeinstructions.append(directions)
-=======
-		directions = recipe["directions"]
-		sentences = directions.split('.')
-		allrecipeinstructions.append(sentences)
->>>>>>> 59af60bfe4ed325b57650f494db4d88834e9543e
+			allrecipeinstructions.append(directions)e
 	return allrecipeinstructions
 	
 	
@@ -73,7 +67,3 @@ if __name__ == '__main__':
 	args = sys.argv[1:]
 	main(args)
 
-<<<<<<< HEAD
-=======
-	trainOnRecipes.createCSP(listOfIngredients, readInstructions)
->>>>>>> 59af60bfe4ed325b57650f494db4d88834e9543e
