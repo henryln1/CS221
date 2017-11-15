@@ -39,13 +39,15 @@ def readIngredients(input): #reads the ingredient.txt in as a list
 	return content
 
 def readInstructions(input):
-	# read in recipes:
-	# allinstructions = []
-	# for each recipe:
-		# instructions = list of sentences in instructions - [sentence1, sentence2, sentence3, etc]
-		# allinstructions.append(instructions)
-	# return allinstructions
-	pass
+	data = json.load(open(input))
+	allrecipeinstructions = []
+	for recipe in data:
+		recipe = []
+		directions = recipe["directions"]
+		sentences = directions.split('.')
+		recipe.append(sentences)
+		allrecipeinstructions.append(recipe)
+	return allrecipeinstructions
 	
 	
 def main():
