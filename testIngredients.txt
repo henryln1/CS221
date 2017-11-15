@@ -1,4 +1,2 @@
-salt
+onions
 sugar
-flour
-

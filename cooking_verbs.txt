@@ -44,7 +44,6 @@ mash
 melt 
 mince 
 mix 
-pickle 
 place 
 poach 
 pour 
@@ -62,7 +61,6 @@ roast
 roll out 
 roll up 
 rub
-salt 
 sauté 
 scoop 
 scorch 
@@ -85,7 +83,6 @@ steam
 steep 
 stir 
 strain 
-sugar 
 sweeten
 taste 
 thaw 

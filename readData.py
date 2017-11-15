@@ -28,14 +28,13 @@ def readCSV(inputfile):
 	# 	numberOfRecipesRead += 1
 	# print "numberOfRecipesRead: ", numberOfRecipesRead
 	# print "hello"
-
 	# commented out above since isn't currently needed
 	recipes = []
 	return recipes
 
 def readIngredients(input): #reads the ingredient.txt in as a list
 	with open(input) as f:
-		content = f.readLines()
+		content = f.readlines()
 	content = [x.strip() for x in content]
 	return content
 
@@ -43,9 +42,9 @@ def readInstructions(input):
 	data = json.load(open(input))
 	allrecipeinstructions = []
 	for recipe in data:
-		directions = recipe["directions"]
-		sentences = directions.split('.')
-		allrecipeinstructions.append(sentences)
+		if len(recipe)!= 0:
+			directions = recipe["directions"]
+			allrecipeinstructions.append(directions)
 	return allrecipeinstructions
 	
 	
@@ -61,9 +60,8 @@ def main(args):
 	ingredientList = args[2]
 	recipesDict = readCSV(inputfile)
 	listOfIngredients = readIngredients(ingredientList)
-	readInstructions = readInstructions(instructions)
-	print 'made it here'
-	trainOnRecipes.main(listOfIngredients, readInstructions)
+	instructions = readInstructions(instructions)
+	trainOnRecipes.main(listOfIngredients, instructions)
 
 if __name__ == '__main__':
 	args = sys.argv[1:]
