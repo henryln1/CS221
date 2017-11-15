@@ -1,10 +1,10 @@
 # this runs inside the main of getData and thus has acess to the variables
 # needs to have the cumulative ingedients list, the directions for each recipe, and a list of verbs used for cooking
 
-import recipeUtil.py
+import recipeUtil
 
-def createCSP(listOfIngredients):
-	max_ingredients = len(listOfIngredients):
+def createCSP(listOfIngredients, allrecipeinstructions):
+	max_ingredients = len(listOfIngredients)
 	csp = recipeUtil.CSP()
   	
 	with open('cooking_verbs.txt') as f:
@@ -60,8 +60,8 @@ def createCSP(listOfIngredients):
   	
 	ingredientsSet = set(listOfIngredients)
 	verbsSet = set(verbs)
-	for instructions in allinstructions:
-		for sentence in instructions:
+	for recipe in allrecipeinstructions:
+		for sentence in recipe:
 			sentence = set(sentence)
 			ingredientsInSentence = sentence.intersection(ingredientsSet)
 			verbsInSentence = sentence.intersection(verbsSet)
@@ -85,8 +85,8 @@ def createCSP(listOfIngredients):
 						
 	return csp		
 				
-def main():
-	csp = createCSP()
+def main(listOfIngredients, allrecipeinstructions):
+	csp = createCSP(listOfIngredients, allrecipeinstructions)
 	search = recipeUtil.BacktrackingSearch()
 	# toggle optimizations (ac3, etc) below
 	search.solve(csp)

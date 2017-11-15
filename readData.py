@@ -5,7 +5,7 @@ import collections
 import sys
 import math
 import json
-import trainOnRecipes.py
+import trainOnRecipes
 
 #hi
 #hi
@@ -39,13 +39,13 @@ def readIngredients(input): #reads the ingredient.txt in as a list
 	return content
 
 def readInstructions(input):
-	# read in recipes:
-	# allinstructions = []
-	# for each recipe:
-		# instructions = list of sentences in instructions - [sentence1, sentence2, sentence3, etc]
-		# allinstructions.append(instructions)
-	# return allinstructions
-	pass
+	data = json.load(open(input))
+	allrecipeinstructions = []
+	for recipe in data:
+		directions = recipe["directions"]
+		sentences = directions.split('.')
+		allrecipeinstructions.append(sentences)
+	return allrecipeinstructions
 	
 	
 def main():
@@ -61,4 +61,4 @@ def main():
 	listOfIngredients = readIngredients(ingredientList)
 	readInstructions = readInstructions(instructions)
 
-	trainOnRecipes.createCSP()
+	trainOnRecipes.main(listOfIngredients, readInstructions)
