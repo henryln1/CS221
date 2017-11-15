@@ -7,7 +7,7 @@ def createCSP(listOfIngredients, allrecipeinstructions):
 	num_ingredients = len(listOfIngredients)
 	csp = recipeUtil.CSP()
   	
-	with open('testVerbs.txt') as f:
+	with open('cooking_verbs.txt') as f:
 		verbs = f.readlines()
 	verbs = [x.strip() for x in verbs]
 
@@ -85,11 +85,7 @@ def createCSP(listOfIngredients, allrecipeinstructions):
 			# print verbsSet
 			# print verbsInSentence
 			# print '*********************'
-			
-
-			sentence = set(sentence)
-			ingredientsInSentence = sentence.intersection(ingredientsSet)
-			verbsInSentence = sentence.intersection(verbsSet)
+		
 			# add binary factor here with function: if ingredient == verb then return a high number, else return a lower number
 
 			def ingredientAndVerb(x, y):

@@ -44,7 +44,7 @@ def readInstructions(input):
 	for recipe in data:
 		if len(recipe)!= 0:
 			directions = recipe["directions"]
-			allrecipeinstructions.append(directions)e
+			allrecipeinstructions.append(directions)
 	return allrecipeinstructions
 	
 	
