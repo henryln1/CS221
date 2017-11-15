@@ -52,6 +52,8 @@ def createCSP():
   # - add binary factor for order of ingredients 
   # (ie weight assignment of verb from sentence 1 higher if the assignment of verb 1 < assignment of verb 2)
   # add factors to constrain only one verb and ingredient to each assignment 1-20 (should go verb, ingredient, verb, ingredient etc.)
+# add factor weighting based on recipe rating??
+
 
 #THINGS TO CONSIDER:
 # - this framework will only allow one verb per ingredient (no repeating verbs)
