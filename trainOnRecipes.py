@@ -3,6 +3,8 @@
 
 import recipeUtil
 
+
+#me playing around, don't pay much attention. 
 def createCSPTest(listOfIngredients, allrecipeinstructions):
 	num_ingredients = len(listOfIngredients)
 	csp = recipeUtil.CSP()
@@ -39,9 +41,10 @@ def createCSP(listOfIngredients, allrecipeinstructions):
 
 
 # add variable for each verb	
+	domain = [0]
 	for verb in verbs:
-    		csp.add_variable(verb, [i for i in range(0, num_ingredients*2 + 1)])
-		
+    		#csp.add_variable(verb, [i for i in range(0, num_ingredients*2 + 1)])
+		csp.add_variable(verb, domain)
 		# ensure verb always assigned before ingredient (aka verbs given odd assignments
 		csp.add_unary_factor(verb, lambda x: x == 0 or x % 2 != 0)
 		
@@ -76,6 +79,21 @@ def createCSP(listOfIngredients, allrecipeinstructions):
 		var = recipeUtil.get_or_variable(csp, 'slot' + str(i), verbs, i)
 		csp.add_unary_factor(var, lambda x: x)
 		i+= 2
+	
+	#now we update the domain of each verb if the verb and ingredient appear in the same sentence.
+	#This means there is a possibility of the two going together, otherwise no chance. 
+	for recipe in allrecipeinstructions:
+		for sentence in recipe:
+			sentence = sentence.lower()
+			sentence = sentence.split(' ')
+			sentenceSet = set(sentence)
+			ingredientsInSentence = sentenceSet.intersection(ingredientsSet)
+			verbsInSentence = sentenceSet.intersection(verbsSet)
+			for ing in ingredientsInSentence:
+				for ver in verbsInSentence:
+					d = [i for i in range(0, num_ingredients*2 + 1)]
+					csp.add_variable(ver, d)
+					
 
 
 #DONE (below) :
