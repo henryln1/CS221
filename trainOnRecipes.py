@@ -50,6 +50,8 @@ def createCSP(listOfIngredients, allrecipeinstructions):
 
 	#Currently we only about the verb variables that appear in the same sentence as an ingredient. Otherwise,
 	# we don't add it to the CSP at all and ignore it completely. 
+	ingredientsSet = set(listOfIngredients)
+	verbsSet = set(verbs)
 	for recipe in allrecipeinstructions:
 		for sentence in recipe:
 			sentence = sentence.lower()
@@ -113,8 +115,6 @@ def createCSP(listOfIngredients, allrecipeinstructions):
 #THINGS TO CONSIDER:
   # - this framework will only allow one verb per ingredient (no repeating verbs)
   	
-	ingredientsSet = set(listOfIngredients)
-	verbsSet = set(verbs)
 	for recipe in allrecipeinstructions:
 		for sentence in recipe:
 			sentence = sentence.lower()
