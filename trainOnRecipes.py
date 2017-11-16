@@ -41,10 +41,10 @@ def createCSP(listOfIngredients, allrecipeinstructions):
 
 
 	# add variable for each verb	
-	#domain = [0]
-	#for verb in verbs:
+	domain = [0]
+	for verb in verbs:
     		#csp.add_variable(verb, [i for i in range(0, num_ingredients*2 + 1)])
-		#csp.add_variable(verb, domain)
+		csp.add_variable(verb, domain)
 		# ensure verb always assigned before ingredient (aka verbs given odd assignments
 		#csp.add_unary_factor(verb, lambda x: x == 0 or x % 2 != 0)
 
@@ -52,6 +52,7 @@ def createCSP(listOfIngredients, allrecipeinstructions):
 	# we don't add it to the CSP at all and ignore it completely. 
 	ingredientsSet = set(listOfIngredients)
 	verbsSet = set(verbs)
+	relevantVerbs = set()
 	for recipe in allrecipeinstructions:
 		for sentence in recipe:
 			sentence = sentence.lower()
@@ -59,11 +60,13 @@ def createCSP(listOfIngredients, allrecipeinstructions):
 			sentenceSet = set(sentence)
 			ingredientsInSentence = sentenceSet.intersection(ingredientsSet)
 			verbsInSentence = sentenceSet.intersection(verbsSet)
+			relevantVerbs.update(verbsInSentence)
 			for ing in ingredientsInSentence:
 				for ver in verbsInSentence:
-					d = [i for i in range(0, num_ingredients*2 + 1)]
+					d = [i for i in range(0, num_ingredients*2 + 1) if i%2 != 0]
+					d.append(0)
 					csp.add_variable(ver, d)
-					csp.add_unary_factor(verb, lambda x: x == 0 or x % 2 != 0)
+					#csp.add_unary_factor(ver, lambda x: x == 0 or x % 2 != 0)
 
 	
  # add variable for each ingredient in cumulative ingredients list
@@ -97,7 +100,7 @@ def createCSP(listOfIngredients, allrecipeinstructions):
 		csp.add_unary_factor(var, lambda x: x)
 		i+= 2
 	
-					
+	#return csp
 
 
 #DONE (below) :
@@ -114,6 +117,9 @@ def createCSP(listOfIngredients, allrecipeinstructions):
   # add factor weighting based on recipe rating??
 #THINGS TO CONSIDER:
   # - this framework will only allow one verb per ingredient (no repeating verbs)
+
+ #TODO:
+  #add a factor that when 2 ingredients appear in the same sentence, weight them accordingly based on which came first
   	
 	for recipe in allrecipeinstructions:
 		for sentence in recipe:
@@ -127,12 +133,12 @@ def createCSP(listOfIngredients, allrecipeinstructions):
 
 			def ingredientAndVerb(x, y):
 				if x == y + 1:
-					return 2
+					return 1.001
 				else:
 					return 1
 			def verbBeforeIngredient(x, y):
 				if y > x:
-					return 2
+					return 1.001
 				else:
 					#returning 1 to indicate no weight
 					return 1
@@ -154,7 +160,7 @@ def main(listOfIngredients, allrecipeinstructions):
  	#print csp.binaryFactors
 	# print csp.unaryFactors
 	search.solve(csp)
-	assignments = search.allAssignments
+	assignments = [search.optimalAssignment]
 	maxPrint = 20
 	count = 0
 	for assign in assignments:
