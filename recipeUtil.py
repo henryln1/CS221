@@ -46,11 +46,11 @@ class CSP:
         if var not in self.variables:
             self.numVars += 1
             self.variables.append(var)
-            
+            self.unaryFactors[var] = None
+            self.binaryFactors[var] = dict()
             #raise Exception("Variable name already exists: %s" % str(var))
         self.values[var] = domain
-        self.unaryFactors[var] = None
-        self.binaryFactors[var] = dict()
+
 
 
     def get_neighbor_vars(self, var):
