@@ -43,11 +43,11 @@ class CSP:
         """
         Add a new variable to the CSP.
         """
-        if var in self.variables:
-            raise Exception("Variable name already exists: %s" % str(var))
-
-        self.numVars += 1
-        self.variables.append(var)
+        if var not in self.variables:
+            self.numVars += 1
+            self.variables.append(var)
+            
+            #raise Exception("Variable name already exists: %s" % str(var))
         self.values[var] = domain
         self.unaryFactors[var] = None
         self.binaryFactors[var] = dict()
