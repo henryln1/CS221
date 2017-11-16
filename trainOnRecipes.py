@@ -40,14 +40,29 @@ def createCSP(listOfIngredients, allrecipeinstructions):
 	verbs = [x.strip() for x in verbs]
 
 
-# add variable for each verb	
-	domain = [0]
-	for verb in verbs:
+	# add variable for each verb	
+	#domain = [0]
+	#for verb in verbs:
     		#csp.add_variable(verb, [i for i in range(0, num_ingredients*2 + 1)])
-		csp.add_variable(verb, domain)
+		#csp.add_variable(verb, domain)
 		# ensure verb always assigned before ingredient (aka verbs given odd assignments
-		csp.add_unary_factor(verb, lambda x: x == 0 or x % 2 != 0)
-		
+		#csp.add_unary_factor(verb, lambda x: x == 0 or x % 2 != 0)
+
+	#Currently we only about the verb variables that appear in the same sentence as an ingredient. Otherwise,
+	# we don't add it to the CSP at all and ignore it completely. 
+	for recipe in allrecipeinstructions:
+		for sentence in recipe:
+			sentence = sentence.lower()
+			sentence = sentence.split(' ')
+			sentenceSet = set(sentence)
+			ingredientsInSentence = sentenceSet.intersection(ingredientsSet)
+			verbsInSentence = sentenceSet.intersection(verbsSet)
+			for ing in ingredientsInSentence:
+				for ver in verbsInSentence:
+					d = [i for i in range(0, num_ingredients*2 + 1)]
+					csp.add_variable(ver, d)
+					csp.add_unary_factor(verb, lambda x: x == 0 or x % 2 != 0)
+
 	
  # add variable for each ingredient in cumulative ingredients list
 	for ingredient in listOfIngredients:
@@ -80,19 +95,6 @@ def createCSP(listOfIngredients, allrecipeinstructions):
 		csp.add_unary_factor(var, lambda x: x)
 		i+= 2
 	
-	#now we update the domain of each verb if the verb and ingredient appear in the same sentence.
-	#This means there is a possibility of the two going together, otherwise no chance. 
-	for recipe in allrecipeinstructions:
-		for sentence in recipe:
-			sentence = sentence.lower()
-			sentence = sentence.split(' ')
-			sentenceSet = set(sentence)
-			ingredientsInSentence = sentenceSet.intersection(ingredientsSet)
-			verbsInSentence = sentenceSet.intersection(verbsSet)
-			for ing in ingredientsInSentence:
-				for ver in verbsInSentence:
-					d = [i for i in range(0, num_ingredients*2 + 1)]
-					csp.add_variable(ver, d)
 					
 
 
