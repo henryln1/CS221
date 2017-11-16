@@ -3,6 +3,32 @@
 
 import recipeUtil
 
+def createCSPTest(listOfIngredients, allrecipeinstructions):
+	num_ingredients = len(listOfIngredients)
+	csp = recipeUtil.CSP()
+  	
+	with open('cooking_verbs.txt') as f:
+		verbs = f.readlines()
+	verbs = [x.strip() for x in verbs]
+	
+	#add an empty domain for each verb variable that we will update later
+	
+	domain = [0]
+	for verbs in verbs:
+		csp.add_variable(verb, domain)
+	
+	# add variable for each ingredient in cumulative ingredients list
+	for ingredient in listOfIngredients:
+		csp.add_variable(ingredient, [i for i in range(1, num_ingredients*2 + 1)])
+		
+		# ensure ingredients are always assigned after verbs (aka ingredients given even assignmnets)
+		csp.add_unary_factor(ingredient, lambda x: x % 2 == 0)
+		
+		#TODO: need to add a piece that makes sure each verb or ingredient has a unique assignment
+	
+	pass
+	
+
 def createCSP(listOfIngredients, allrecipeinstructions):
 	num_ingredients = len(listOfIngredients)
 	csp = recipeUtil.CSP()
