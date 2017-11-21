@@ -253,6 +253,11 @@ class BacktrackingSearch():
             self.allAssignments.append(newAssignment)
 
             if len(self.optimalAssignment) == 0 or weight >= self.optimalWeight:
+                assignment = {k: v for k, v in newAssignment.items() if v > 0 and v <= 4 and k[0] != 'or'}
+                print "assignment and weight:"
+                print assignment
+                print weight
+
                 if weight == self.optimalWeight:
                     self.numOptimalAssignments += 1
                 else:

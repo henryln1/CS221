@@ -122,6 +122,8 @@ def createCSP(listOfIngredients, allrecipeinstructions):
   #add a factor that when 2 ingredients appear in the same sentence, weight them accordingly based on which came first
   	
 	for recipe in allrecipeinstructions:
+		prevIng = None
+		prevVrb = None
 		for sentence in recipe:
 			sentence = sentence.lower()
 			sentence = sentence.split(' ')
@@ -129,14 +131,14 @@ def createCSP(listOfIngredients, allrecipeinstructions):
 			ingredientsInSentence = sentenceSet.intersection(ingredientsSet)
 			verbsInSentence = sentenceSet.intersection(verbsSet)
 		
-			# add binary factor here with function: if ingredient == verb then return a high number, else return a lower number
-
 			def ingredientAndVerb(x, y):
 				if x == y + 1:
-					return 1.001
+					return 1.002
 				else:
 					return 1
-			def verbBeforeIngredient(x, y):
+
+			# generic function for ordering. used for verb before ingredient, ingredient ordering, verb ordering
+			def yAfterX(x, y):
 				if y > x:
 					return 1.001
 				else:
@@ -144,12 +146,21 @@ def createCSP(listOfIngredients, allrecipeinstructions):
 					return 1
 
 			for ing in ingredientsInSentence:
+				# add binary factor to weight ingredient ordering
+				if prevIng != None and prevIng != ing:
+					csp.add_binary_factor(prevIng, ing, yAfterX)
+				prevIng = ing
 				for vrb in verbsInSentence:
 					# add binary factor here with function: if ingredient == verb + 1 then return a high number, else return a lower number
 					csp.add_binary_factor(ing, vrb, ingredientAndVerb)				
 					# add binary factor to weight for verb coming before ingredient		
 					if sentence.index(vrb) > sentence.index(ing):
-						csp.add_binary_factor(ing, vrb, verbBeforeIngredient)
+						csp.add_binary_factor(ing, vrb, yAfterX)
+					# add binary factor to weight verb ordering
+					if prevVrb != None and prevVrb != vrb:
+						csp.add_binary_factor(prevVrb, vrb, yAfterX)
+					prevVrb = vrb
+
 						
 	return csp		
 				
