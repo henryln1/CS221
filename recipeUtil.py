@@ -46,11 +46,11 @@ class CSP:
         if var not in self.variables:
             self.numVars += 1
             self.variables.append(var)
-            
+            self.unaryFactors[var] = None
+            self.binaryFactors[var] = dict()
             #raise Exception("Variable name already exists: %s" % str(var))
         self.values[var] = domain
-        self.unaryFactors[var] = None
-        self.binaryFactors[var] = dict()
+
 
 
     def get_neighbor_vars(self, var):
@@ -164,6 +164,7 @@ class BacktrackingSearch():
             print "Found %d optimal assignments with weight %f in %d operations" % \
                 (self.numOptimalAssignments, self.optimalWeight, self.numOperations)
             print "First assignment took %d operations" % self.firstAssignmentNumOperations
+            #print self.optimalAssignment
         else:
             print "No solution was found."
 
@@ -252,6 +253,11 @@ class BacktrackingSearch():
             self.allAssignments.append(newAssignment)
 
             if len(self.optimalAssignment) == 0 or weight >= self.optimalWeight:
+                assignment = {k: v for k, v in newAssignment.items() if v > 0 and v <= 4 and k[0] != 'or'}
+                print "assignment and weight:"
+                print assignment
+                print weight
+
                 if weight == self.optimalWeight:
                     self.numOptimalAssignments += 1
                 else:

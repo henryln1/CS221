@@ -1,5 +1,5 @@
 import time
-import pandas
+#import pandas
 import random
 import collections
 import sys
@@ -10,7 +10,7 @@ import trainOnRecipes
 
 
 def readCSV(inputfile):
-	inputInformation = pandas.read_csv(inputfile)
+	#inputInformation = pandas.read_csv(inputfile)
 	# allIngredientsPlusOtherThings = []
 	# recipes = collections.defaultdict(collections.defaultdict(int)) #maps a recipe title to a list of ingredients needed
 	# allColumns = []
