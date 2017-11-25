@@ -178,6 +178,9 @@ def main(listOfIngredients, allrecipeinstructions):
 		count += 1
 		assignment = {k: v for k, v in assign.items() if v > 0 and v <= len(listOfIngredients) * 2 and k[0] != 'or'}
 		print assignment
+		f1=open('testfile', 'w+')
+		print >> f1, assignment
+		f1.close()
 		if count > maxPrint:
 			break
 			
