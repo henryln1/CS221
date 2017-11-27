@@ -239,7 +239,7 @@ class BacktrackingSearch():
         @param weight: The weight of the current partial assignment.
         """
         # print assignment 
-        #print self.numOperations
+        print self.numOperations
         self.numOperations += 1
         assert weight > 0
 
@@ -254,9 +254,9 @@ class BacktrackingSearch():
 
             if len(self.optimalAssignment) == 0 or weight >= self.optimalWeight:
                 assignment = {k: v for k, v in newAssignment.items() if v > 0 and v <= 4 and k[0] != 'or'}
-                print "assignment and weight:"
-                print assignment
-                print weight
+                #print "assignment and weight:"
+                #print assignment
+                #print weight
 
                 if weight == self.optimalWeight:
                     self.numOptimalAssignments += 1
@@ -295,7 +295,9 @@ class BacktrackingSearch():
                     assignment[var] = val
                     # create a deep copy of domains as we are going to look
                     # ahead and change domain values
-                    localCopy = copy.deepcopy(self.domains)
+
+                    #localCopy = copy.deepcopy(self.domains)
+                    localCopy = self.domains.copy()
                     # fix value for the selected variable so that hopefully we
                     # can eliminate values for other variables
                     self.domains[var] = [val]

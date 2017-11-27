@@ -170,7 +170,7 @@ def main(listOfIngredients, allrecipeinstructions):
 	# toggle optimizations (ac3, etc) below
  	#print csp.binaryFactors
 	# print csp.unaryFactors
-	search.solve(csp)
+	search.solve(csp, True, True)
 	assignments = [search.optimalAssignment]
 	maxPrint = 20
 	count = 0
