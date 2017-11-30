@@ -166,11 +166,15 @@ def createCSP(listOfIngredients, allrecipeinstructions):
 				
 def main(listOfIngredients, allrecipeinstructions):
 	csp = createCSP(listOfIngredients, allrecipeinstructions)
-	search = recipeUtil.BacktrackingSearch()
+	#search = recipeUtil.BacktrackingSearch()
+	search = recipeUtil.BeamSearch()
+	search.initialize(5)
+	search.reset_results()
 	# toggle optimizations (ac3, etc) below
  	#print csp.binaryFactors
 	# print csp.unaryFactors
-	search.solve(csp, True, True)
+	search.solve(csp)
+	#search.solve(csp, True, True)
 	assignments = [search.optimalAssignment]
 	maxPrint = 20
 	count = 0

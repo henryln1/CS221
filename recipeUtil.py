@@ -392,6 +392,164 @@ class BacktrackingSearch():
                     self.domains[Xi] = newDomainXi
                     Xs.add(Xi)   
 
+class BeamSearch():
+
+    #README
+    #Most of the code is taken from backtracking search and the main change is that instead of keeping track of the current assignment, we keep a list
+    # of all possible assignments we are considering. Beam() then recurses on a subset of those each time.
+
+    #numOperations = 0
+    #K = 0
+    optimalAssignment = {}
+
+    numOptimalAssignments = 0
+    numAssignments = 0
+
+            #how many layers of the tree basically
+    numOperations = 0
+    optimalWeight = 0
+
+    firstAssignmentNumOperations = 0
+
+    allAssignments = []
+    K = 0
+
+    def initialize(self, number):
+        self.K = number
+
+    def reset_results(self):
+        self.optimalAssignment = {}
+
+        self.numOptimalAssignments = 0
+        self.numAssignments = 0
+
+        #how many layers of the tree basically
+        self.numOperations = 0
+        self.optimalWeight = 0
+        self.firstAssignmentNumOperations = 0
+
+        self.allAssignments = []
+
+    def print_stats(self):
+        """
+        Prints a message summarizing the outcome of the solver.
+        """
+        if self.optimalAssignment:
+            print "Found %d optimal assignments with weight %f in %d operations" % \
+                (self.numOptimalAssignments, self.optimalWeight, self.numOperations)
+            print "First assignment took %d operations" % self.firstAssignmentNumOperations
+            #print self.optimalAssignment
+        else:
+            print "No solution was found."
+
+    def get_delta_weight(self, assignment, var, val):
+
+        assert var not in assignment
+        w = 1.0
+        if self.csp.unaryFactors[var]:
+            w *= self.csp.unaryFactors[var][val]
+            if w == 0: return w
+        for var2, factor in self.csp.binaryFactors[var].iteritems():
+            if var2 not in assignment: continue  # Not assigned yet
+            w *= factor[val][assignment[var2]]
+            if w == 0: return w
+        return w
+
+    def solve(self, csp, mcv = False, ac3 = False):
+
+        self.csp = csp
+        self.mcv = mcv
+        self.ac3 = ac3
+        self.reset_results
+
+        self.domains = {var: list(self.csp.values[var]) for var in self.csp.variables}
+
+        self.beam([]) 
+
+        self.print_stats()
+
+    def beam(self, currentPossibleAssignments): #list of tuples (current partial assignment, numberAssigned, weight) current partial assignment is a list of dictionaries
+
+        print self.numOperations
+        self.numOperations += 1
+        #if (self.numOperations > 10): return
+        newAssignmentsToChoose = []
+        if (currentPossibleAssignments):
+            for currentPartial in currentPossibleAssignments:
+                currentAssignment, numberAssigned, weight = currentPartial
+                if (numberAssigned == self.csp.numVars):
+                    self.numAssignments += 1
+                    newAssignment = {}
+                    for var in self.csp.variables:
+                        if (var in currentAssignment):
+                            newAssignment[var] = currentAssignment[var]
+                    self.allAssignments.append(newAssignment)
+                    if len(self.optimalAssignment) == 0 or weight >= self.optimalWeight:
+                        assignment = {k: v for k, v in newAssignment.items() if v > 0 and v <= 4 and k[0] != 'or'}
+                        #print "assignment and weight:"
+                        #print assignment
+                        #print weight
+
+                        if weight == self.optimalWeight:
+                            self.numOptimalAssignments += 1
+                        else:
+                            self.numOptimalAssignments = 1
+                        self.optimalWeight = weight
+
+                        self.optimalAssignment = newAssignment
+                        if self.firstAssignmentNumOperations == 0:
+                            self.firstAssignmentNumOperations = self.numOperations
+                    return
+                #this following code happens when the assignment is not complete yet
+                variables = self.get_all_unassigned(currentAssignment)
+
+                #currently ignoring ac3 and just doing regular beam search
+                #try each combination of variable + value
+
+                for var in variables:
+                    ordered_values = self.domains[var]
+                    for val in ordered_values:
+                        deltaWeight = self.get_delta_weight(currentAssignment,var, val)
+                        
+                        if deltaWeight > 0:
+                            currentAssignment[var] = val
+                            newAssignmentsToChoose.append((currentAssignment, numberAssigned + 1, weight * deltaWeight))
+                            del currentAssignment[var]
+        else: #when we are at beginning and there are no assignments to try yet
+            variables = self.csp.variables
+            empty_dict = {}
+            for var in variables:
+                ordered_values = self.domains[var]
+                for val in ordered_values:
+                    deltaWeight = self.get_delta_weight(empty_dict,var, val)
+                    
+                    if deltaWeight > 0:
+                        currentAssignment = empty_dict.copy()
+                        currentAssignment[var] = val
+                        newAssignmentsToChoose.append((currentAssignment, 1, deltaWeight))
+                        del currentAssignment[var]
+        #need to now pick the K best assignments and go from there
+        #sorts by the weight
+        newAssignmentsToChoose.sort(key = lambda tup:tup[2])
+        print newAssignmentsToChoose
+
+        bestOnes = newAssignmentsToChoose[len(newAssignmentsToChoose) - self.K:]
+        #print bestOnes
+        #recurses
+        self.beam(bestOnes)
+
+
+
+    def get_all_unassigned(self, assignment):
+        unassigned = []
+
+        for var in self.csp.variables:
+            if (var not in assignment):
+                unassigned.append(var)
+        return unassigned
+
+
+
 def get_or_variable(csp, name, variables, value):
     """
     Create a new variable with domain [True, False] that can only be assigned to
