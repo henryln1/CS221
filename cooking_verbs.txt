@@ -16,7 +16,7 @@ mix
 transfer
 whisk 
 season 
-sauté 
+saute
 refrigerate 
 remove 
 sprinkle 
