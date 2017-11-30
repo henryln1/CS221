@@ -87,20 +87,16 @@ def createCSP(listOfIngredients, allrecipeinstructions):
 				csp.add_binary_factor(ingredient, ingredient2, lambda x,y: x != y)
 	
 	# ensure no verbs are given the same assignment
+	# also positively weight verbs having value > 0
+	def verbValCheck(x):
+		if x != 0:
+			return 1.1
+		return 1
 	for verb in verbs:	
-			for v in verbs: 				
-				if v != verb:
-					csp.add_binary_factor(verb, v, lambda x, y: x == 0  or x != y)
-
-	# lol i dont know how to do a for loop that increments by 2
-	# ensures that all the order has verbs assigned for every position (aka not all verbs are zero)
-	i = 1
-	while i < num_ingredients * 2:
-		var = recipeUtil.get_or_variable(csp, 'slot' + str(i), verbs, i)
-		csp.add_unary_factor(var, lambda x: x)
-		i+= 2
-	
-	#return csp
+		csp.add_unary_factor(verb, verbValCheck)
+		for v in verbs: 				
+			if v != verb:
+				csp.add_binary_factor(verb, v, lambda x, y: x == 0  or x != y)
 
 
 #DONE (below) :
@@ -109,11 +105,10 @@ def createCSP(listOfIngredients, allrecipeinstructions):
   # - identify verbs in sentence
   # - add binary factor for each ingredient in each sentence and verbs in sentence
   # - add binary factor for when a verb comes before an ingredient - not optimal 
-#TO DO:
   # - add binary factor for order of verbs from previous sentence to this sentence -
   # - add binary factor for order of ingredients 
   # (ie weight assignment of verb from sentence 1 higher if the assignment of verb 1 < assignment of verb 2)
-  # add factors to constrain only one verb and ingredient to each assignment 1-20 (should go verb, ingredient, verb, ingredient etc.)
+#TO DO:
   # add factor weighting based on recipe rating??
 #THINGS TO CONSIDER:
   # - this framework will only allow one verb per ingredient (no repeating verbs)
@@ -168,12 +163,12 @@ def main(listOfIngredients, allrecipeinstructions):
 	csp = createCSP(listOfIngredients, allrecipeinstructions)
 	#search = recipeUtil.BacktrackingSearch()
 	search = recipeUtil.BeamSearch()
-	search.initialize(5)
+	search.initialize(10)
 	search.reset_results()
 	# toggle optimizations (ac3, etc) below
  	#print csp.binaryFactors
 	# print csp.unaryFactors
-	search.solve(csp)
+	search.solve(csp, len(listOfIngredients))
 	#search.solve(csp, True, True)
 	assignments = [search.optimalAssignment]
 	maxPrint = 20

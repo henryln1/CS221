@@ -156,6 +156,8 @@ class BacktrackingSearch():
         # List of all solutions found.
         self.allAssignments = []
 
+        self.numIngredients = 0
+
     def print_stats(self):
         """
         Prints a message summarizing the outcome of the solver.
@@ -195,7 +197,7 @@ class BacktrackingSearch():
             if w == 0: return w
         return w
 
-    def solve(self, csp, mcv = False, ac3 = False):
+    def solve(self, csp, numIngredients, mcv = False, ac3 = False):
         """
         Solves the given weighted CSP using heuristics as specified in the
         parameter. Note that unlike a typical unweighted CSP where the search
@@ -220,6 +222,8 @@ class BacktrackingSearch():
 
         # The dictionary of domains of every variable in the CSP.
         self.domains = {var: list(self.csp.values[var]) for var in self.csp.variables}
+
+        self.numIngredients = numIngredients
 
         # Perform backtracking search.
         self.backtrack({}, 0, 1)
@@ -253,6 +257,15 @@ class BacktrackingSearch():
             self.allAssignments.append(newAssignment)
 
             if len(self.optimalAssignment) == 0 or weight >= self.optimalWeight:
+
+                # checks if every spot is assigned
+                toBeAssigned = [i for i in range(1, self.numIngredients * 2 + 1)]
+                for k in assignment:
+                    v = assignment[k]
+                    if v != 0:
+                        toBeAssigned.remove(v)
+                if toBeAssigned:
+                    return
                 assignment = {k: v for k, v in newAssignment.items() if v > 0 and v <= 4 and k[0] != 'or'}
                 #print "assignment and weight:"
                 #print assignment
@@ -413,6 +426,7 @@ class BeamSearch():
 
     allAssignments = []
     K = 0
+    started = False
 
     def initialize(self, number):
         self.K = number
@@ -429,6 +443,8 @@ class BeamSearch():
         self.firstAssignmentNumOperations = 0
 
         self.allAssignments = []
+
+        self.numIngredients = 0
 
     def print_stats(self):
         """
@@ -455,7 +471,7 @@ class BeamSearch():
             if w == 0: return w
         return w
 
-    def solve(self, csp, mcv = False, ac3 = False):
+    def solve(self, csp, numIngredients, mcv = False, ac3 = False):
 
         self.csp = csp
         self.mcv = mcv
@@ -463,6 +479,8 @@ class BeamSearch():
         self.reset_results
 
         self.domains = {var: list(self.csp.values[var]) for var in self.csp.variables}
+
+        self.numIngredients = numIngredients
 
         self.beam([]) 
 
@@ -485,10 +503,18 @@ class BeamSearch():
                             newAssignment[var] = currentAssignment[var]
                     self.allAssignments.append(newAssignment)
                     if len(self.optimalAssignment) == 0 or weight >= self.optimalWeight:
+                        # checks if every spot is assigned
+                        toBeAssigned = [i for i in range(1, self.numIngredients * 2 + 1)]
+                        for k in currentAssignment:
+                            v = currentAssignment[k]
+                            if v != 0:
+                                toBeAssigned.remove(v)
+                        if toBeAssigned:
+                            continue
                         assignment = {k: v for k, v in newAssignment.items() if v > 0 and v <= 4 and k[0] != 'or'}
-                        #print "assignment and weight:"
-                        #print assignment
-                        #print weight
+                        # print "assignment and weight:"
+                        # print assignment
+                        # print weight
 
                         if weight == self.optimalWeight:
                             self.numOptimalAssignments += 1
@@ -513,25 +539,33 @@ class BeamSearch():
                         
                         if deltaWeight > 0:
                             currentAssignment[var] = val
-                            newAssignmentsToChoose.append((currentAssignment, numberAssigned + 1, weight * deltaWeight))
+                            newAssignmentsToChoose.append((dict(currentAssignment), numberAssigned + 1, weight * deltaWeight))
+                           # print str(weight * deltaWeight)
+                           # print newAssignmentsToChoose
                             del currentAssignment[var]
-        else: #when we are at beginning and there are no assignments to try yet
+        elif not self.started: #when we are at beginning and there are no assignments to try yet
+            self.started = True
             variables = self.csp.variables
             empty_dict = {}
             for var in variables:
+                if type(var) is not str:
+                    continue
                 ordered_values = self.domains[var]
                 for val in ordered_values:
+                    #print val
                     deltaWeight = self.get_delta_weight(empty_dict,var, val)
                     
                     if deltaWeight > 0:
                         currentAssignment = empty_dict.copy()
                         currentAssignment[var] = val
-                        newAssignmentsToChoose.append((currentAssignment, 1, deltaWeight))
+                        newAssignmentsToChoose.append((dict(currentAssignment), 1, deltaWeight))
                         del currentAssignment[var]
+            #print newAssignmentsToChoose
         #need to now pick the K best assignments and go from there
         #sorts by the weight
         newAssignmentsToChoose.sort(key = lambda tup:tup[2])
-        print newAssignmentsToChoose
+        #print "NEW ASSIGNMENTS"
+        #print newAssignmentsToChoose
 
         bestOnes = newAssignmentsToChoose[len(newAssignmentsToChoose) - self.K:]
         #print bestOnes

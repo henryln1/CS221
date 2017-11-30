@@ -22,6 +22,6 @@ remove
 sprinkle 
 beat 
 roast 
-bake 
-place 
+bake
+place
 pour
