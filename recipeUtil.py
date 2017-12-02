@@ -671,6 +671,14 @@ def get_or_variable(csp, name, variables, value):
     csp.add_binary_factor(A_i, result, lambda val, res: res == (val != 'no'))
     return result     
 
+def separateIngredients(sentence, listOfIngredients):
+    returnList = []
+    for x in range(len(sentence)):
+        if (sentence[x] in listOfIngredients):
+            returnList.append(sentence[x])
+
+    return returnList
+
 def generateFeatureWeights(listOfIngredients):
     featuresWeightsDict = collections.defaultdict(float)
     dictionaryInstructions = {}
@@ -698,6 +706,17 @@ def generateFeatureWeights(listOfIngredients):
                     for k in relevantIngredients:
                         featuresWeightsDict[(j, k)] += 1
 
+                #for l in relevantIngredients:
+                 #   for m in relevantIngredients:
+                  #      if (l != m):
+                   #         featuresWeights[(l,m)] += 1
+
+                ingredientsInList = separateIngredients(sentence, listOfIngredients)
+
+                for l in range(len(ingredientsInList)):
+                    for m in range(l + 1, len(ingredientsInList)):
+                        featuresWeights[(l,m)] += 1
+
     print featuresWeightsDict
     return featuresWeightsDict
 
@@ -723,5 +742,21 @@ def evaluationFunction(assignment, listOfIngredients):
         realness += featuresWeights[(currentVerb, currentIngredient)]
         currentVerbIndex += 2
         currentIngredientIndex += 2
+
+    orderedListIngredients = []
+    currentIngredientIndex = 2
+    while (currentIngredientIndex < len(assignment)):
+        currentIngredient = None
+        for key in assignment:
+            if assignment[key] == currentIngredientIndex:
+                currentIngredient = key
+                break
+        orderedListIngredients.append(currentIngredient)
+        currentIngredientIndex += 2
+
+    for x in range(len(orderedListIngredients)):
+        for y in range(x + 1, len(orderedListIngredients)):
+            realness += featuresWeights[(x, y)]
+        
     return realness
 
