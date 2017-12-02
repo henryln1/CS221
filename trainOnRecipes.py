@@ -149,26 +149,30 @@ def createCSP(listOfIngredients, allrecipeinstructions):
 				
 def main(listOfIngredients, allrecipeinstructions):
 	csp = createCSP(listOfIngredients, allrecipeinstructions)
-	#search = recipeUtil.BacktrackingSearch()
-	search = recipeUtil.BeamSearch()
-	search.initialize(10)
-	search.reset_results()
+	search = recipeUtil.BacktrackingSearch()
+	#search = recipeUtil.BeamSearch()
+	#search.initialize(10)
+	#search.reset_results()
 	# toggle optimizations (ac3, etc) below
  	#print csp.binaryFactors
 	# print csp.unaryFactors
-	search.solve(csp, len(listOfIngredients))
-	#search.solve(csp, True, True)
+	#search.solve(csp, len(listOfIngredients))
+	search.solve(csp, len(listOfIngredients), True, True)
 	assignments = [search.optimalAssignment]
 	maxPrint = 20
 	count = 0
+	bestAssignment = []
 	for assign in assignments:
 		count += 1
 		assignment = {k: v for k, v in assign.items() if v > 0 and v <= len(listOfIngredients) * 2 and k[0] != 'or'}
 		print assignment
+		bestAssignment = assignment
 		f1=open('testfile', 'w+')
 		print >> f1, assignment
 		f1.close()
 		if count > maxPrint:
 			break
 			
-			
+	#for i in range(1, len(bestAssignment), 2):
+	#	print bestAssignment[i], " ", bestAssignment[i + 1]
+

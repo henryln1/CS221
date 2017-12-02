@@ -1,4 +1,6 @@
-
+import random
+import collections
+import json
 # Code from CS 221 assignment "scheduling"
 
 class CSP:
@@ -158,6 +160,8 @@ class BacktrackingSearch():
 
         self.numIngredients = 0
 
+        self.epsilon = 0.3
+
     def print_stats(self):
         """
         Prints a message summarizing the outcome of the solver.
@@ -227,6 +231,11 @@ class BacktrackingSearch():
 
         # Perform backtracking search.
         self.backtrack({}, 0, 1)
+        probRandom = random.uniform(0.0,1.0)
+        #print self.numAssignments
+        if (probRandom <= self.epsilon):
+            print "Epsilon greedy activated"
+            print random.choice(self.allAssignments)
         # Print summary of solutions.
         self.print_stats()
 
@@ -427,7 +436,9 @@ class BeamSearch():
     allAssignments = []
     K = 0
     started = False
+    #attempt at adding human ingenuity
 
+    epsilon = 0.3
     def initialize(self, number):
         self.K = number
 
@@ -451,6 +462,7 @@ class BeamSearch():
         Prints a message summarizing the outcome of the solver.
         """
         if self.optimalAssignment:
+            print "Total number of assignments: %d" % (self.numAssignments)
             print "Found %d optimal assignments with weight %f in %d operations" % \
                 (self.numOptimalAssignments, self.optimalWeight, self.numOperations)
             print "First assignment took %d operations" % self.firstAssignmentNumOperations
@@ -483,6 +495,9 @@ class BeamSearch():
         self.numIngredients = numIngredients
 
         self.beam([]) 
+        prob = random.uniform(0.0,1.0)
+        if (prob < self.epsilon):
+            print random.choice(self.allAssignments)
 
         self.print_stats()
 
@@ -655,4 +670,57 @@ def get_or_variable(csp, name, variables, value):
     # hacky: reuse A_i because of python's loose scope
     csp.add_binary_factor(A_i, result, lambda val, res: res == (val != 'no'))
     return result     
+
+def generateFeatureWeights(listOfIngredients):
+    featuresWeightsDict = collections.defaultdict(float)
+    dictionaryInstructions = {}
+    fileName = "full_format_recipes.json"
+    with open(fileName, 'r') as f:
+        dictionaryInstructions = json.load(f)
+    print dictionaryInstructions[1][u'directions']
+
+    with open('cooking_verbs.txt') as f:
+        verbs = f.readlines()
+    verbs = [x.strip() for x in verbs]
+    
+    ingredients = listOfIngredients
+
+    for i in range(len(dictionaryInstructions)):
+
+        for instruction in dictionaryInstructions[i][u'directions']:
+            instruction = instruction.lower()
+            sentenceWords = instruction.split()
+            relevantVerbs = set.intersection(set(verbs), set(sentenceWords))
+            relevantIngredients = set.intersection(set(ingredients), set(sentenceWords))
+
+            for j in relevantVerbs:
+                for k in relevantIngredients:
+                    featuresWeightsDict[(j, k)] += 1
+
+
+    return featuresWeightsDict
+
+def evaluationFunction(assignment, listOfIngredients):
+
+    #determines how real a recipe is, the higher the return value, the more genuine the recipe
+    realness = 0
+    #generate features and weights
+
+    featuresWeights = generateFeatureWeights(listOfIngredients)
+    currentVerbIndex = 1
+    currentIngredientIndex = 2
+    while (assignment and currentIngredient <= len(assignment)):
+        currentVerb = None
+        currentIngredient = None
+        for key in assignment:
+            if assignment[key] == currentVerbIndex:
+                currentVerb = key
+            if assignment[key] == currentIngredientIndex:
+                currentIngredient = key
+            if (currentIngredient and currentVerb):
+                break
+        realness += featuresWeights[(currentVerb, currentIngredient)]
+        currentVerbIndex += 2
+        currentIngredientIndex += 2
+    return realness
 
