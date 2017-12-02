@@ -677,7 +677,7 @@ def generateFeatureWeights(listOfIngredients):
     fileName = "full_format_recipes.json"
     with open(fileName, 'r') as f:
         dictionaryInstructions = json.load(f)
-    print dictionaryInstructions[1][u'directions']
+    #print dictionaryInstructions[1][u'directions']
 
     with open('cooking_verbs.txt') as f:
         verbs = f.readlines()
@@ -685,19 +685,21 @@ def generateFeatureWeights(listOfIngredients):
     
     ingredients = listOfIngredients
 
-    for i in range(len(dictionaryInstructions)):
+    for i in range(1, len(dictionaryInstructions)):
+        print i
+        #print dictionaryInstructions[i].keys()
+        if (u'directions' in dictionaryInstructions[i]):
+            for instruction in dictionaryInstructions[i][u'directions']:
+                instruction = instruction.lower()
+                sentenceWords = instruction.split()
+                relevantVerbs = set.intersection(set(verbs), set(sentenceWords))
+                relevantIngredients = set.intersection(set(ingredients), set(sentenceWords))
 
-        for instruction in dictionaryInstructions[i][u'directions']:
-            instruction = instruction.lower()
-            sentenceWords = instruction.split()
-            relevantVerbs = set.intersection(set(verbs), set(sentenceWords))
-            relevantIngredients = set.intersection(set(ingredients), set(sentenceWords))
+                for j in relevantVerbs:
+                    for k in relevantIngredients:
+                        featuresWeightsDict[(j, k)] += 1
 
-            for j in relevantVerbs:
-                for k in relevantIngredients:
-                    featuresWeightsDict[(j, k)] += 1
-
-
+    print featuresWeightsDict
     return featuresWeightsDict
 
 def evaluationFunction(assignment, listOfIngredients):
