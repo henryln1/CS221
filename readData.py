@@ -6,7 +6,7 @@ import sys
 import math
 import json
 import trainOnRecipes
-
+import baseline
 
 
 def readCSV(inputfile):
@@ -49,8 +49,9 @@ def readInstructions(input):
 	
 	
 def main(args):
-	if (len(sys.argv) != 4):
-		raise Exception("Usage: readData.py <inputfile>.csv <inputinstructions>.json <ingredientList>.txt")
+	if (len(sys.argv) < 4 or len(sys.argv) > 5):
+		print "Please provide 3 parameters, or 4 if you want to run the baseline model."
+		raise Exception("Usage: readData.py <inputfile>.csv <inputinstructions>.json <ingredientList>.txt -b")
 	
 	print "This program will read in the csv file and generate data structures to hold the information. \
 	 It then looks at the ingredient list passed in and tries to generate a list of instructions to make a dish \
@@ -61,7 +62,10 @@ def main(args):
 	recipesDict = readCSV(inputfile)
 	listOfIngredients = readIngredients(ingredientList)
 	instructions = readInstructions(instructions)
-	trainOnRecipes.main(listOfIngredients, instructions)
+	if len(sys.argv) == 4:
+		trainOnRecipes.main(listOfIngredients, instructions)
+	else:
+		baseline.main(listOfIngredients, instructions)
 
 if __name__ == '__main__':
 	args = sys.argv[1:]
