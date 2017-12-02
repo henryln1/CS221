@@ -1,4 +1,5 @@
 import random
+import recipeUtil 
 
 def main(listOfIngredients, allrecipeinstructions):
     assignment = {}
@@ -21,3 +22,4 @@ def main(listOfIngredients, allrecipeinstructions):
         verbs.remove(verbs[verb])
 
     print assignment
+    print recipeUtil.evaluationFunction(assignment, listOfIngredients)

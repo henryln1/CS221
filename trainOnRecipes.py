@@ -134,6 +134,8 @@ def main(listOfIngredients, allrecipeinstructions):
 		f1.close()
 		if count > maxPrint:
 			break
+
+	print recipeUtil.evaluationFunction(assignment, listOfIngredients)
 			
 	#for i in range(1, len(bestAssignment), 2):
 	#	print bestAssignment[i], " ", bestAssignment[i + 1]

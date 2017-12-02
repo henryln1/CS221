@@ -686,7 +686,6 @@ def generateFeatureWeights(listOfIngredients):
     ingredients = listOfIngredients
 
     for i in range(1, len(dictionaryInstructions)):
-        print i
         #print dictionaryInstructions[i].keys()
         if (u'directions' in dictionaryInstructions[i]):
             for instruction in dictionaryInstructions[i][u'directions']:
@@ -711,7 +710,7 @@ def evaluationFunction(assignment, listOfIngredients):
     featuresWeights = generateFeatureWeights(listOfIngredients)
     currentVerbIndex = 1
     currentIngredientIndex = 2
-    while (assignment and currentIngredient <= len(assignment)):
+    while (assignment and currentIngredientIndex <= len(assignment)):
         currentVerb = None
         currentIngredient = None
         for key in assignment:
