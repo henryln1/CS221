@@ -711,11 +711,11 @@ def generateFeatureWeights(listOfIngredients):
                   #      if (l != m):
                    #         featuresWeights[(l,m)] += 1
 
-                ingredientsInList = separateIngredients(sentence, listOfIngredients)
+                ingredientsInList = separateIngredients(sentenceWords, listOfIngredients)
 
                 for l in range(len(ingredientsInList)):
                     for m in range(l + 1, len(ingredientsInList)):
-                        featuresWeights[(l,m)] += 1
+                        featuresWeightsDict[(l,m)] += 1
 
     print featuresWeightsDict
     return featuresWeightsDict
