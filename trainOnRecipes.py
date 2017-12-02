@@ -2,33 +2,6 @@
 # needs to have the cumulative ingedients list, the directions for each recipe, and a list of verbs used for cooking
 
 import recipeUtil
-
-
-#me playing around, don't pay much attention. 
-def createCSPTest(listOfIngredients, allrecipeinstructions):
-	num_ingredients = len(listOfIngredients)
-	csp = recipeUtil.CSP()
-  	
-	with open('cooking_verbs.txt') as f:
-		verbs = f.readlines()
-	verbs = [x.strip() for x in verbs]
-	
-	#add an empty domain for each verb variable that we will update later
-	
-	domain = [0]
-	for verbs in verbs:
-		csp.add_variable(verb, domain)
-	
-	# add variable for each ingredient in cumulative ingredients list
-	for ingredient in listOfIngredients:
-		csp.add_variable(ingredient, [i for i in range(1, num_ingredients*2 + 1)])
-		
-		# ensure ingredients are always assigned after verbs (aka ingredients given even assignmnets)
-		csp.add_unary_factor(ingredient, lambda x: x % 2 == 0)
-		
-		#TODO: need to add a piece that makes sure each verb or ingredient has a unique assignment
-	
-	pass
 	
 
 def createCSP(listOfIngredients, allrecipeinstructions):
@@ -39,17 +12,7 @@ def createCSP(listOfIngredients, allrecipeinstructions):
 		verbs = f.readlines()
 	verbs = [x.strip() for x in verbs]
 
-
-	# add variable for each verb	
-	domain = [0]
-	for verb in verbs:
-    		#csp.add_variable(verb, [i for i in range(0, num_ingredients*2 + 1)])
-		csp.add_variable(verb, domain)
-		# ensure verb always assigned before ingredient (aka verbs given odd assignments
-		#csp.add_unary_factor(verb, lambda x: x == 0 or x % 2 != 0)
-
-	#Currently we only about the verb variables that appear in the same sentence as an ingredient. Otherwise,
-	# we don't add it to the CSP at all and ignore it completely. 
+	# add variable for each verb that shows up in same sentence as an ingredient
 	ingredientsSet = set(listOfIngredients)
 	verbsSet = set(verbs)
 	relevantVerbs = set()
@@ -66,10 +29,9 @@ def createCSP(listOfIngredients, allrecipeinstructions):
 					d = [i for i in range(1, num_ingredients*2 + 1, 2)]
 					d.append(0)
 					csp.add_variable(ver, d)
-					#csp.add_unary_factor(ver, lambda x: x == 0 or x % 2 != 0)
 
 	
- # add variable for each ingredient in cumulative ingredients list
+ 	# add variable for each ingredient in cumulative ingredients list
 	for ingredient in listOfIngredients:
 		csp.add_variable(ingredient, [i for i in range(2, num_ingredients*2 + 1, 2)])
 		
