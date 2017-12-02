@@ -63,7 +63,7 @@ def createCSP(listOfIngredients, allrecipeinstructions):
 			relevantVerbs.update(verbsInSentence)
 			for ing in ingredientsInSentence:
 				for ver in verbsInSentence:
-					d = [i for i in range(0, num_ingredients*2 + 1) if i%2 != 0]
+					d = [i for i in range(1, num_ingredients*2 + 1, 2)]
 					d.append(0)
 					csp.add_variable(ver, d)
 					#csp.add_unary_factor(ver, lambda x: x == 0 or x % 2 != 0)
@@ -71,10 +71,7 @@ def createCSP(listOfIngredients, allrecipeinstructions):
 	
  # add variable for each ingredient in cumulative ingredients list
 	for ingredient in listOfIngredients:
-		csp.add_variable(ingredient, [i for i in range(1, num_ingredients*2 + 1)])
-		
-		# ensure ingredients are always assigned after verbs (aka ingredients given even assignmnets)
-		csp.add_unary_factor(ingredient, lambda x: x % 2 == 0)
+		csp.add_variable(ingredient, [i for i in range(2, num_ingredients*2 + 1, 2)])
 		
 		# ensure only one verb/ingredient is assigned a number 
 		for verb in verbs:
@@ -87,13 +84,7 @@ def createCSP(listOfIngredients, allrecipeinstructions):
 				csp.add_binary_factor(ingredient, ingredient2, lambda x,y: x != y)
 	
 	# ensure no verbs are given the same assignment
-	# also positively weight verbs having value > 0
-	def verbValCheck(x):
-		if x != 0:
-			return 1.1
-		return 1
 	for verb in verbs:	
-		csp.add_unary_factor(verb, verbValCheck)
 		for v in verbs: 				
 			if v != verb:
 				csp.add_binary_factor(verb, v, lambda x, y: x == 0  or x != y)
@@ -112,9 +103,6 @@ def createCSP(listOfIngredients, allrecipeinstructions):
   # add factor weighting based on recipe rating??
 #THINGS TO CONSIDER:
   # - this framework will only allow one verb per ingredient (no repeating verbs)
-
- #TODO:
-  #add a factor that when 2 ingredients appear in the same sentence, weight them accordingly based on which came first
   	
 	for recipe in allrecipeinstructions:
 		prevIng = None
@@ -132,7 +120,7 @@ def createCSP(listOfIngredients, allrecipeinstructions):
 				else:
 					return 1
 
-			# generic function for ordering. used for verb before ingredient, ingredient ordering, verb ordering
+			# generic function for ordering. used for ingredient ordering, verb ordering
 			def yAfterX(x, y):
 				if y > x:
 					return 1.001
