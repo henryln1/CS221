@@ -22,4 +22,4 @@ def main(listOfIngredients, allrecipeinstructions):
         verbs.remove(verbs[verb])
 
     print assignment
-    print recipeUtil.evaluationFunction(assignment, listOfIngredients)
+    print recipeUtil.evaluationFunction(assignment, listOfIngredients, True)
