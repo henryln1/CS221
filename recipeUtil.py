@@ -1,6 +1,7 @@
 import random
 import collections
 import json
+from operator import itemgetter
 # Code from CS 221 assignment "scheduling"
 
 class CSP:
@@ -233,7 +234,7 @@ class BacktrackingSearch():
         self.backtrack({}, 0, 1)
         probRandom = random.uniform(0.0,1.0)
         #print self.numAssignments
-        if (probRandom <= self.epsilon):
+        if (probRandom <= self.epsilon and self.allAssignments):
             print "Epsilon greedy activated"
             print random.choice(self.allAssignments)
         # Print summary of solutions.
@@ -252,7 +253,7 @@ class BacktrackingSearch():
         @param weight: The weight of the current partial assignment.
         """
         # print assignment 
-        print self.numOperations
+        # print self.numOperations
         self.numOperations += 1
         assert weight > 0
 
@@ -269,13 +270,19 @@ class BacktrackingSearch():
 
                 # checks if every spot is assigned
                 toBeAssigned = [i for i in range(1, self.numIngredients * 2 + 1)]
+                numOccurrences = collections.defaultdict(int)
                 for k in assignment:
                     v = assignment[k]
-                    if v != 0:
+                    if type(v) is str:
+                        continue
+                    numOccurrences[v] += 1
+                    if numOccurrences[v] > 2 and v != 0:
+                        return
+                    if v in toBeAssigned:
                         toBeAssigned.remove(v)
                 if toBeAssigned:
                     return
-                assignment = {k: v for k, v in newAssignment.items() if v > 0 and v <= 4 and k[0] != 'or'}
+                assignment = {k: v for k, v in newAssignment.items() if type(v) == str or (v > 0 and v <= 4 and k[0] != 'or')}
                 #print "assignment and weight:"
                 #print assignment
                 #print weight
@@ -404,6 +411,10 @@ class BacktrackingSearch():
                 for valueI in domainXi:
                     consistent = False
                     for valueJ in domainXj:
+                        # print Xi
+                        # print Xj
+                        # print valueI
+                        # print valueJ
                         if self.csp.binaryFactors[Xi][Xj][valueI][valueJ] != 0:
                             consistent = True
                             break
@@ -496,7 +507,7 @@ class BeamSearch():
 
         self.beam([]) 
         prob = random.uniform(0.0,1.0)
-        if (prob < self.epsilon):
+        if (prob < self.epsilon) and self.allAssignments:
             print random.choice(self.allAssignments)
 
         self.print_stats()
@@ -506,10 +517,13 @@ class BeamSearch():
         print self.numOperations
         self.numOperations += 1
         #if (self.numOperations > 10): return
+        latestNumAssigned = 0
         newAssignmentsToChoose = []
         if (currentPossibleAssignments):
             for currentPartial in currentPossibleAssignments:
                 currentAssignment, numberAssigned, weight = currentPartial
+                latestNumAssigned = numberAssigned
+                # print currentAssignment
                 if (numberAssigned == self.csp.numVars):
                     self.numAssignments += 1
                     newAssignment = {}
@@ -522,13 +536,17 @@ class BeamSearch():
                         toBeAssigned = [i for i in range(1, self.numIngredients * 2 + 1)]
                         for k in currentAssignment:
                             v = currentAssignment[k]
-                            if v != 0:
+                            if "mins" in k:
+                                continue
+                            if type(v) is str:
+                                continue
+                            if v in toBeAssigned:
                                 toBeAssigned.remove(v)
                         if toBeAssigned:
                             continue
-                        assignment = {k: v for k, v in newAssignment.items() if v > 0 and v <= 4 and k[0] != 'or'}
+                        assignment = {k: v for k, v in newAssignment.items() if type(v) == str or (v > 0)}
                         # print "assignment and weight:"
-                        # print assignment
+                        #print assignment
                         # print weight
 
                         if weight == self.optimalWeight:
@@ -540,7 +558,7 @@ class BeamSearch():
                         self.optimalAssignment = newAssignment
                         if self.firstAssignmentNumOperations == 0:
                             self.firstAssignmentNumOperations = self.numOperations
-                    return
+                    continue
                 #this following code happens when the assignment is not complete yet
                 variables = self.get_all_unassigned(currentAssignment)
 
@@ -551,7 +569,8 @@ class BeamSearch():
                     ordered_values = self.domains[var]
                     for val in ordered_values:
                         deltaWeight = self.get_delta_weight(currentAssignment,var, val)
-                        
+                        # print currentAssignment
+                        # print deltaWeight
                         if deltaWeight > 0:
                             currentAssignment[var] = val
                             newAssignmentsToChoose.append((dict(currentAssignment), numberAssigned + 1, weight * deltaWeight))
@@ -578,11 +597,15 @@ class BeamSearch():
             #print newAssignmentsToChoose
         #need to now pick the K best assignments and go from there
         #sorts by the weight
+        if latestNumAssigned == self.csp.numVars:
+            return
         newAssignmentsToChoose.sort(key = lambda tup:tup[2])
         #print "NEW ASSIGNMENTS"
         #print newAssignmentsToChoose
 
         bestOnes = newAssignmentsToChoose[len(newAssignmentsToChoose) - self.K:]
+        if not bestOnes:
+            return
         #print bestOnes
         #recurses
         self.beam(bestOnes)
@@ -717,11 +740,11 @@ def generateFeatureWeights(listOfIngredients):
                     for m in range(l + 1, len(ingredientsInList)):
                         featuresWeightsDict[(l,m)] += 1
 
-    print featuresWeightsDict
+    # print featuresWeightsDict
     return featuresWeightsDict
 
 def evaluationFunction(assignment, listOfIngredients):
-
+    print "evaluating..."
     #determines how real a recipe is, the higher the return value, the more genuine the recipe
     realness = 0
     #generate features and weights
