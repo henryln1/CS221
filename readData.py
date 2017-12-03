@@ -7,6 +7,7 @@ import math
 import json
 import trainOnRecipes
 import baseline
+import csv
 
 
 def readCSV(inputfile):
@@ -67,6 +68,30 @@ def main(args):
 	else:
 		baseline.main(listOfIngredients, instructions)
 
+def generateExcelFile():
+	instructions = readInstructions("full_format_recipes.json")
+
+	file = open('allIngredients.txt', 'r')
+	allIngredients = file.readlines()
+	file.close()
+
+	allIngredients = [x for x in allIngredients if x != '\n']
+	for b in range(len(allIngredients)):
+		allIngredients[b] = allIngredients[b][:-1]
+	print allIngredients
+
+	file = open("generatedData.txt","a+")
+	file.write("number of ingredients, evalCSP, evalBaseline" + "\n")
+	for g in range(1, 11):
+		for i in range(10):
+			currentIngredients = random.sample(allIngredients, g)
+			valueCSP = trainOnRecipes.main(currentIngredients, instructions)
+			valueBaseline = baseline.main(currentIngredients, instructions)
+			#csv.write(str(g) + "," + str(valueCSP) + "," + str(valueBaseline) + "\n")
+			print "valueCSP", valueCSP
+			print "valueBaseline", valueBaseline
+			file.write(str(g) + "," + str(valueCSP) + "," + str(valueBaseline) + "\n")
+	file.close()
 if __name__ == '__main__':
 	args = sys.argv[1:]
 	main(args)

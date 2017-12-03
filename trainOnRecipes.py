@@ -16,14 +16,15 @@ def createCSP(listOfIngredients, allrecipeinstructions):
 	verbDomain = [i for i in range(1, num_ingredients*2 + 1, 2)]
 	verbDomain.append(0)
 	ingredientDomain = [i for i in range(2, num_ingredients*2 + 1, 2)]
-
-	# add variable for each verb in verb list
 	for verb in verbs:
 		csp.add_variable(verb, verbDomain)
 
  	# add variable for each ingredient in cumulative ingredients list
 	for ingredient in listOfIngredients:
-		csp.add_variable(ingredient, ingredientDomain)		
+		csp.add_variable(ingredient, ingredientDomain)	
+		# ensure only one verb/ingredient is assigned a number 
+		for verb in verbs:
+			csp.add_binary_factor(ingredient, verb, lambda x,y: x != y)		
 	
 	# ensure each place in the order is assigned exactly one ingredient
 	for ingredient in listOfIngredients:
@@ -35,7 +36,9 @@ def createCSP(listOfIngredients, allrecipeinstructions):
 	for verb in verbs:	
 		for v in verbs: 				
 			if v != verb:
-				csp.add_binary_factor(verb, v, lambda x, y: x == 0 or x != y)
+				csp.add_binary_factor(verb, v, lambda x, y: x == 0  or x != y)
+
+
 
   	ingredientsSet = set(listOfIngredients)
 	verbsSet = set(verbs)
@@ -103,10 +106,10 @@ def createCSP(listOfIngredients, allrecipeinstructions):
 						if "minutes" in sentence:
 							numMinutes = sentence[sentence.index("minutes") - 1]
 							if numMinutes.isdigit() and int(numMinutes) <= 60:
-								minuteCounts[noun] += 1
+								minuteCounts[numMinutes] += 1
 					if vrb == "beat" or vrb == "add" or vrb == "combine" or vrb =="mix" or vrb =="whisk" or vrb =="pour":
 						for size in bowlSizes:
-							sizeCounts[noun] += (size in sentence)
+							sizeCounts[size] += (size in sentence)
 
 	# count up frequency of sentence qualifiers
 	for noun in addCounts:
@@ -177,6 +180,6 @@ def main(listOfIngredients, allrecipeinstructions):
 		if count > maxPrint:
 			break
 
-	print recipeUtil.evaluationFunction(assignment, listOfIngredients, False)
-
+	k = recipeUtil.evaluationFunction(assignment, listOfIngredients, False)
+	return k
 
