@@ -705,80 +705,96 @@ def separateIngredients(sentence, listOfIngredients):
 def generateFeatureWeights(listOfIngredients):
     featuresWeightsDict = collections.defaultdict(float)
     dictionaryInstructions = {}
-    fileName = "full_format_recipes.json"
+    fileName = "full_format_recipes.json" # TO CHANGE
     with open(fileName, 'r') as f:
         dictionaryInstructions = json.load(f)
-    #print dictionaryInstructions[1][u'directions']
 
     with open('cooking_verbs.txt') as f:
         verbs = f.readlines()
     verbs = [x.strip() for x in verbs]
     
     ingredients = listOfIngredients
+    thingsToAddTo = ["bowl", "skillet", "pot", "kettle", "saucepan", "pan"]
+    thingsToHeatIn = ["skillet", "pot", "kettle", "saucepan", "pan"]
+    cookMinutes = [i for i in range(1, 61)]
+    bowlSizes = ["small", "medium", "large"]
 
     for i in range(1, len(dictionaryInstructions)):
-        #print dictionaryInstructions[i].keys()
         if (u'directions' in dictionaryInstructions[i]):
             for instruction in dictionaryInstructions[i][u'directions']:
                 instruction = instruction.lower()
                 sentenceWords = instruction.split()
                 relevantVerbs = set.intersection(set(verbs), set(sentenceWords))
                 relevantIngredients = set.intersection(set(ingredients), set(sentenceWords))
+                relevantNouns = set.intersection(set(thingsToAddTo), set(sentenceWords))
+                relevantNouns2 = set.intersection(set(thingsToHeatIn), set(sentenceWords))
+                relevantMins = set.intersection(set(cookMinutes), set(sentenceWords))
+                relevantSizes = set.intersection(set(bowlSizes), set(sentenceWords))
 
                 for j in relevantVerbs:
                     for k in relevantIngredients:
                         featuresWeightsDict[(j, k)] += 1
+                    if j == "add" or j == "combine" or j == "mix" or j == "whisk" or j == "pour" or j == "stir":
+                        for l in relevantNouns:
+                            featuresWeightsDict[(j, l)] += 1
+                        featuresWeightsDict[(j, "")] = 0
+                    elif j == "heat":
+                        for l in relevantNouns2:
+                            featuresWeightsDict[(j, l)] += 1
+                        featuresWeightsDict[(j, "")] = 0
+                    elif j == "cook" or j == "boil" or j == "simmer" or j == "chill" or j == "refrigerate" or j == "bake":
+                        for l in relevantMins:
+                            featuresWeightsDict[(j, l)] += 1
+                        featuresWeightsDict[(j, 0)] = 0
+                    if j == "beat" or j == "add" or j == "combine" or j =="mix" or j =="whisk" or j =="pour":
+                        for l in relevantSizes:
+                            featuresWeightsDict[(j, l)] += 1
+                        featuresWeightsDict[(j, "")] = 0
 
-                #for l in relevantIngredients:
-                 #   for m in relevantIngredients:
-                  #      if (l != m):
-                   #         featuresWeights[(l,m)] += 1
 
                 ingredientsInList = separateIngredients(sentenceWords, listOfIngredients)
 
                 for l in range(len(ingredientsInList)):
-                    for m in range(l + 1, len(ingredientsInList)):
+                    for m in range(l + 1, len(ingredientsInList) + 1):
                         featuresWeightsDict[(l,m)] += 1
 
     # print featuresWeightsDict
     return featuresWeightsDict
 
-def evaluationFunction(assignment, listOfIngredients):
+def evaluationFunction(assignment, listOfIngredients, baseline):
     print "evaluating..."
     #determines how real a recipe is, the higher the return value, the more genuine the recipe
     realness = 0
     #generate features and weights
+    numIngredients = len(listOfIngredients)
+    orderedListIngredients = []
 
     featuresWeights = generateFeatureWeights(listOfIngredients)
     currentVerbIndex = 1
     currentIngredientIndex = 2
-    while (assignment and currentIngredientIndex <= len(assignment)):
-        currentVerb = None
-        currentIngredient = None
-        for key in assignment:
-            if assignment[key] == currentVerbIndex:
-                currentVerb = key
-            if assignment[key] == currentIngredientIndex:
-                currentIngredient = key
-            if (currentIngredient and currentVerb):
-                break
+    reversedAssignment = dict((v,k) for k,v in assignment.iteritems())
+    for index in range(1, numIngredients + 1):
+        currentVerb = reversedAssignment[index * 2 - 1]
+        currentIngredient = reversedAssignment[index * 2]
         realness += featuresWeights[(currentVerb, currentIngredient)]
-        currentVerbIndex += 2
-        currentIngredientIndex += 2
-
-    orderedListIngredients = []
-    currentIngredientIndex = 2
-    while (currentIngredientIndex < len(assignment)):
-        currentIngredient = None
-        for key in assignment:
-            if assignment[key] == currentIngredientIndex:
-                currentIngredient = key
-                break
         orderedListIngredients.append(currentIngredient)
-        currentIngredientIndex += 2
+        if not baseline:
+            noun = "bowl"
+            if currentVerb == "add" or currentVerb == "combine" or currentVerb == "mix" or currentVerb == "whisk" or currentVerb == "pour" or currentVerb == "stir":
+                noun = assignment["add in"]
+                realness += featuresWeights[(currentVerb, noun)]
+            elif currentVerb == "heat":
+                noun = assignment["heat in"]
+                realness += featuresWeights[(currentVerb, noun)]
+            elif currentVerb == "cook" or currentVerb == "boil" or currentVerb == "simmer" or currentVerb == "chill" or currentVerb == "refrigerate" or currentVerb == "bake":
+                mins = assignment["mins"]
+                realness += featuresWeights[(currentVerb, mins)]
+            if noun == "bowl" and (currentVerb == "beat" or currentVerb == "add" or currentVerb == "combine" or currentVerb == "whisk" or currentVerb == "pour" or currentVerb == "stir"):
+                bowlSize = assignment["bowl size"]
+                realness += featuresWeights[(currentVerb, bowlSize)]
 
-    for x in range(len(orderedListIngredients)):
-        for y in range(x + 1, len(orderedListIngredients)):
+    for x in range(numIngredients):
+        for y in range(x + 1, numIngredients + 1):
             realness += featuresWeights[(x, y)]
         
     return realness

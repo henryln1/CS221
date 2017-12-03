@@ -107,7 +107,7 @@ def createCSP(listOfIngredients, allrecipeinstructions):
 							numMinutes = sentence[sentence.index("minutes") - 1]
 							if numMinutes.isdigit() and int(numMinutes) <= 60:
 								minuteCounts[noun] += 1
-					elif vrb == "beat" or vrb == "add" or vrb == "combine" or vrb =="mix" or vrb =="whisk" or vrb =="pour":
+					if vrb == "beat" or vrb == "add" or vrb == "combine" or vrb =="mix" or vrb =="whisk" or vrb =="pour":
 						for size in bowlSizes:
 							sizeCounts[noun] += (size in sentence)
 
@@ -143,6 +143,10 @@ def translateAssignment(numIngredients, assignment):
 			mins = assignment["mins"]
 			if mins != 0:
 				step += " for " + str(mins) + " minutes"
+		elif vrb == "beat":
+			bowlSize = assignment["bowl size"]
+			if bowlSize != "":
+				step += " in " + bowlSize + " bowl"
 		step += "."
 		print step
 				
@@ -176,8 +180,6 @@ def main(listOfIngredients, allrecipeinstructions):
 		if count > maxPrint:
 			break
 
-	print recipeUtil.evaluationFunction(assignment, listOfIngredients)
-			
-	#for i in range(1, len(bestAssignment), 2):
-	#	print bestAssignment[i], " ", bestAssignment[i + 1]
+	print recipeUtil.evaluationFunction(assignment, listOfIngredients, False)
+
 
