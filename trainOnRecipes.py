@@ -16,15 +16,14 @@ def createCSP(listOfIngredients, allrecipeinstructions):
 	verbDomain = [i for i in range(1, num_ingredients*2 + 1, 2)]
 	verbDomain.append(0)
 	ingredientDomain = [i for i in range(2, num_ingredients*2 + 1, 2)]
+
+	# add variable for each verb in verb list
 	for verb in verbs:
 		csp.add_variable(verb, verbDomain)
 
  	# add variable for each ingredient in cumulative ingredients list
 	for ingredient in listOfIngredients:
-		csp.add_variable(ingredient, ingredientDomain)	
-		# ensure only one verb/ingredient is assigned a number 
-		for verb in verbs:
-			csp.add_binary_factor(ingredient, verb, lambda x,y: x != y)		
+		csp.add_variable(ingredient, ingredientDomain)		
 	
 	# ensure each place in the order is assigned exactly one ingredient
 	for ingredient in listOfIngredients:
@@ -36,9 +35,7 @@ def createCSP(listOfIngredients, allrecipeinstructions):
 	for verb in verbs:	
 		for v in verbs: 				
 			if v != verb:
-				csp.add_binary_factor(verb, v, lambda x, y: x == 0  or x != y)
-
-
+				csp.add_binary_factor(verb, v, lambda x, y: x == 0 or x != y)
 
   	ingredientsSet = set(listOfIngredients)
 	verbsSet = set(verbs)
