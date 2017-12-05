@@ -15,6 +15,5 @@ chill
 blend 
 cool  
 drain
-season 
 saute 
 roast 

@@ -181,5 +181,6 @@ def main(listOfIngredients, allrecipeinstructions):
 			break
 
 	k = recipeUtil.evaluationFunction(assignment, listOfIngredients, False)
+	print k
 	return k
 
