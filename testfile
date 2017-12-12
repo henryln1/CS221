@@ -1,1 +1,1 @@
-{'heat in': 'saucepan', 'stir': 1, 'sugar': 2, 'add': 3, 'add in': 'bowl', 'bowl size': 'large', 'mins': 60, 'onions': 4}
+{'heat in': 'saucepan', 'flour': (8, 6, 4, 2), 'eggs': (8, 6, 4, 2), 'sugar': (8, 6, 4, 2), 'vanilla': (8, 6, 4, 2), 'add': 1, 'chocolate': (8, 6, 4, 2), 'add in': 'bowl', 'bowl size': 'large', 'bake': 5, 'stir': 3, 'milk': (8, 6, 4, 2), 'cool': 7}

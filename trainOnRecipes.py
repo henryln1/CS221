@@ -3,9 +3,10 @@
 
 import recipeUtil
 import collections
+import itertools
 
 
-def createCSP(listOfIngredients, allrecipeinstructions):
+def createCSP(listOfIngredients, allrecipeinstructions, limit):
 	num_ingredients = len(listOfIngredients)
 	csp = recipeUtil.CSP()
   	
@@ -13,24 +14,22 @@ def createCSP(listOfIngredients, allrecipeinstructions):
 		verbs = f.readlines()
 	verbs = [x.strip() for x in verbs]
 
-	verbDomain = [i for i in range(1, num_ingredients*2 + 1, 2)]
+	verbDomain = [i for i in range(1, limit, 2)]
 	verbDomain.append(0)
-	ingredientDomain = [i for i in range(2, num_ingredients*2 + 1, 2)]
 	for verb in verbs:
 		csp.add_variable(verb, verbDomain)
 
  	# add variable for each ingredient in cumulative ingredients list
-	for ingredient in listOfIngredients:
-		csp.add_variable(ingredient, ingredientDomain)	
-		# ensure only one verb/ingredient is assigned a number 
-		for verb in verbs:
-			csp.add_binary_factor(ingredient, verb, lambda x,y: x != y)		
-	
-	# ensure each place in the order is assigned exactly one ingredient
-	for ingredient in listOfIngredients:
-		for ingredient2 in listOfIngredients:
-			if ingredient != ingredient2:
-				csp.add_binary_factor(ingredient, ingredient2, lambda x,y: x != y)
+	for ingredient in listOfIngredients:	
+		domain = []
+		prevTuple = tuple()
+		ingRange = limit
+		for i in range(ingRange, 1, -2):
+			newTuple = prevTuple + (i,)
+			domain.append(newTuple)
+			prevTuple = newTuple
+		csp.add_variable(ingredient, domain)
+
 	
 	# ensure no verbs are given the same assignment
 	for verb in verbs:	
@@ -38,26 +37,24 @@ def createCSP(listOfIngredients, allrecipeinstructions):
 			if v != verb:
 				csp.add_binary_factor(verb, v, lambda x, y: x == 0  or x != y)
 
-
-
   	ingredientsSet = set(listOfIngredients)
 	verbsSet = set(verbs)
 	# qualifiers for our sentences
 	thingsToAddTo = ["bowl", "skillet", "pot", "kettle", "saucepan", "pan", ""]
 	csp.add_variable("add in", thingsToAddTo)
 	csp.add_variable("heat in", thingsToAddTo)
-	cookMinutes = [i for i in range(0, 61)]
-	csp.add_variable("mins", cookMinutes)
 	bowlSizes = ["small", "medium", "large", ""]
 	csp.add_variable("bowl size", bowlSizes)
 	addCounts = collections.defaultdict(int)
 	heatCounts = collections.defaultdict(int)
-	minuteCounts = collections.defaultdict(int)
 	sizeCounts = collections.defaultdict(int)
 
 	for recipe in allrecipeinstructions:
 		prevIng = None
 		prevVrb = None
+		firstVrb = None
+		totalIngredients = set()
+		totalVerbs = set()
 		for sentence in recipe:
 			sentence = sentence.lower()
 			sentence = sentence.split(' ')
@@ -67,68 +64,108 @@ def createCSP(listOfIngredients, allrecipeinstructions):
 		
 			# weight ingredient immediately after verb
 			def ingredientAndVerb(x, y):
-				if x == y + 1:
-					return 1.002
+				if y + 1 in x:
+					return 1.004
 				else:
 					return 1
 
-			# generic function for ordering. used for ingredient ordering, verb ordering
+			# generic function for ordering. used for verb ordering
 			def yAfterX(x, y):
 				if y > x:
-					return 1.001
+					return 1.007
 				else:
 					#returning 1 to indicate no weight
 					return 1
 
+			def ingredientOrdering(x, y):
+				factor = 1
+				for indexX in x:
+					for indexY in y:
+						if indexY == 2 + indexX:
+							factor *= 1.001
+						if indexY < indexX:
+							factor *= 0.999 # makes sure we don't just assign every ingredient to every verb
+				return factor
+
+			def verbBeforeIngredient(x, y):
+				factor = 1
+				for index in x:
+					if index > y:
+						factor *= 1.001
+				return factor	
+
 			for ing in ingredientsInSentence:
 				# add binary factor to weight ingredient ordering
 				if prevIng != None and prevIng != ing:
-					csp.add_binary_factor(prevIng, ing, yAfterX)
+					csp.add_binary_factor(prevIng, ing, ingredientOrdering)
 				prevIng = ing
 				for vrb in verbsInSentence:
 					# add binary factor here with function: if ingredient == verb + 1 then return a high number, else return a lower number
 					csp.add_binary_factor(ing, vrb, ingredientAndVerb)				
 					# add binary factor to weight for verb coming before ingredient		
-					if sentence.index(vrb) > sentence.index(ing):
-						csp.add_binary_factor(ing, vrb, yAfterX)
+					# if sentence.index(vrb) < sentence.index(ing):
+					# 	csp.add_binary_factor(ing, vrb, verbBeforeIngredient)
 					# add binary factor to weight verb ordering
+					if firstVrb != None and firstVrb != vrb:
+						csp.add_binary_factor(firstVrb, vrb, yAfterX)
+					elif firstVrb == None:
+						firstVrb = vrb
 					if prevVrb != None and prevVrb != vrb:
 						csp.add_binary_factor(prevVrb, vrb, yAfterX)
-					prevVrb = vrb
 					# find qualifiers to build sentences
 					if vrb == "add" or vrb == "combine" or vrb == "mix" or vrb == "whisk" or vrb == "pour" or vrb == "stir":
 						for noun in thingsToAddTo:
 							addCounts[noun] += (noun in sentence)
-					elif vrb == "heat":
+					elif vrb == "cook" or vrb == "boil" or vrb == "simmer" or vrb == "chill" or vrb == "refrigerate" or vrb == "bake" or vrb == "toast":
 						for noun in thingsToAddTo:
 							heatCounts[noun] += (noun in sentence)
-					elif vrb == "cook" or vrb == "boil" or vrb == "simmer" or vrb == "chill" or vrb == "refrigerate" or vrb == "bake":
-						if "minutes" in sentence:
-							numMinutes = sentence[sentence.index("minutes") - 1]
-							if numMinutes.isdigit() and int(numMinutes) <= 60:
-								minuteCounts[numMinutes] += 1
 					if vrb == "beat" or vrb == "add" or vrb == "combine" or vrb =="mix" or vrb =="whisk" or vrb =="pour":
 						for size in bowlSizes:
 							sizeCounts[size] += (size in sentence)
+			totalIngredients.update(ingredientsInSentence)
+			totalVerbs.update(verbsInSentence)
+
+		def weightValue(x):
+			return 1.3
+		if len(totalIngredients) >= num_ingredients - 2:
+			for verb in totalVerbs:
+				csp.add_unary_factor(verb, weightValue)
 
 	# count up frequency of sentence qualifiers
 	for noun in addCounts:
 		csp.add_unary_factor("add in", lambda x: 1 + (x == noun) * addCounts[noun] * .001)
 		csp.add_unary_factor("heat in", lambda x: 1 + (x == noun) * heatCounts[noun] * .001)
-	for num in minuteCounts:
-		csp.add_unary_factor("mins", lambda x: 1 + (x == num) * minuteCounts[num] * .001)
 	for size in sizeCounts:
 		csp.add_unary_factor("bowl size", lambda x: 1 + (x == size) * sizeCounts[size] * .001)
+
 						
 	return csp		
 
-def translateAssignment(numIngredients, assignment, returnStuff = False):
+def translateAssignment(limit, assignment, returnStuff = False):
 	returnList = []
-	reversedAssignment = dict((v,k) for k,v in assignment.iteritems())
-	for i in range(1, numIngredients*2 + 1, 2):
+	if not assignment:
+		print "No recipe."
+		return
+	reversedAssignment = collections.defaultdict(tuple)
+	for obj, indices in assignment.items():
+		if type(indices) != tuple:
+			reversedAssignment[indices] = obj
+		else:
+			for index in indices:
+				reversedAssignment[index] += (obj,)
+
+	for i in range(1, limit + 1, 2):
 		vrb = reversedAssignment[i]
-		ing = reversedAssignment[i + 1]
-		step = str(i/2 + 1) + ". " + vrb + " " + ing
+		ings = reversedAssignment[i + 1]
+		step = str(i/2 + 1) + ". " + vrb
+		first = True
+		numIngs = len(ings)
+		for j in range(0, numIngs):
+			if j != 0 and numIngs != 2:
+				step += ","
+			if j == numIngs - 1 and numIngs != 1:
+				step += " and"
+			step += " " + ings[j]
 		if vrb == "add" or vrb == "combine" or vrb == "mix" or vrb == "whisk" or vrb == "pour" or vrb == "stir":
 			noun = assignment["add in"]
 			if noun == "bowl" and assignment["bowl size"] != "":
@@ -136,14 +173,10 @@ def translateAssignment(numIngredients, assignment, returnStuff = False):
 			inOrTo = " in " if vrb != "add" else " to "
 			if noun != "":
 				step += inOrTo + noun
-		elif vrb == "heat":
+		elif vrb == "cook" or vrb == "boil" or vrb == "simmer" or vrb == "chill" or vrb == "refrigerate" or vrb == "bake" or vrb == "toast" or vrb == "melt":
 			noun = assignment["heat in"]
 			if noun != "":
 				step += " in " + noun
-		elif vrb == "cook" or vrb == "boil" or vrb == "simmer" or vrb == "chill" or vrb == "refrigerate" or vrb == "bake":
-			mins = assignment["mins"]
-			if mins != 0:
-				step += " for " + str(mins) + " minutes"
 		elif vrb == "beat":
 			bowlSize = assignment["bowl size"]
 			if bowlSize != "":
@@ -155,8 +188,9 @@ def translateAssignment(numIngredients, assignment, returnStuff = False):
 		return returnList
 				
 def main(listOfIngredients, allrecipeinstructions, returnAssignment = False):
-	csp = createCSP(listOfIngredients, allrecipeinstructions)
 	numIngredients = len(listOfIngredients)
+	limit = numIngredients * 2 if numIngredients < 5 else 8
+	csp = createCSP(listOfIngredients, allrecipeinstructions, limit)
 	#search = recipeUtil.BacktrackingSearch()
 	search = recipeUtil.BeamSearch()
 	search.initialize(50)
@@ -165,7 +199,7 @@ def main(listOfIngredients, allrecipeinstructions, returnAssignment = False):
  	#print csp.binaryFactors
 	# print csp.unaryFactors
 	#search.solve(csp, len(listOfIngredients))
-	search.solve(csp, len(listOfIngredients), True, True)
+	search.solve(csp, limit, True, True)
 	assignments = [search.optimalAssignment]
 	maxPrint = 20
 	count = 0
@@ -176,7 +210,7 @@ def main(listOfIngredients, allrecipeinstructions, returnAssignment = False):
 		assignment = {k: v for k, v in assign.items() if type(v) == str or v > 0}
 		print assignment
 		print "Translation:"
-		translateAssignment(numIngredients, assignment)
+		translateAssignment(limit, assignment)
 		bestAssignment = assignment
 		f1=open('testfile', 'w+')
 		print >> f1, assignment
@@ -184,9 +218,9 @@ def main(listOfIngredients, allrecipeinstructions, returnAssignment = False):
 		if count > maxPrint:
 			break
 
-	k = recipeUtil.evaluationFunction(assignment, listOfIngredients, False)
-	if (returnAssignment):
-		return bestAssignment, k
-	else:
-		return k
+	#k = recipeUtil.evaluationFunction(assignment, listOfIngredients, False)
+	#if (returnAssignment):
+	#	return bestAssignment, k
+	#else:
+	#	return k
 

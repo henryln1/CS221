@@ -466,7 +466,7 @@ class BeamSearch():
 
         self.allAssignments = []
 
-        self.numIngredients = 0
+        self.limit = 0
 
     def print_stats(self):
         """
@@ -494,7 +494,7 @@ class BeamSearch():
             if w == 0: return w
         return w
 
-    def solve(self, csp, numIngredients, mcv = False, ac3 = False):
+    def solve(self, csp, limit, mcv = False, ac3 = False):
 
         self.csp = csp
         self.mcv = mcv
@@ -503,11 +503,12 @@ class BeamSearch():
 
         self.domains = {var: list(self.csp.values[var]) for var in self.csp.variables}
 
-        self.numIngredients = numIngredients
+        self.limit = limit
 
         self.beam([]) 
         prob = random.uniform(0.0,1.0)
         if (prob < self.epsilon) and self.allAssignments:
+            print "epsilon"
             print random.choice(self.allAssignments)
 
         self.print_stats()
@@ -523,17 +524,18 @@ class BeamSearch():
             for currentPartial in currentPossibleAssignments:
                 currentAssignment, numberAssigned, weight = currentPartial
                 latestNumAssigned = numberAssigned
-                # print currentAssignment
                 if (numberAssigned == self.csp.numVars):
                     self.numAssignments += 1
                     newAssignment = {}
                     for var in self.csp.variables:
                         if (var in currentAssignment):
                             newAssignment[var] = currentAssignment[var]
+                    #print currentAssignment
                     self.allAssignments.append(newAssignment)
                     if len(self.optimalAssignment) == 0 or weight >= self.optimalWeight:
+                        #print currentAssignment
                         # checks if every spot is assigned
-                        toBeAssigned = [i for i in range(1, self.numIngredients * 2 + 1)]
+                        toBeAssigned = [i for i in range(1, self.limit + 1, 2)]
                         for k in currentAssignment:
                             v = currentAssignment[k]
                             if "mins" in k:
@@ -543,6 +545,7 @@ class BeamSearch():
                             if v in toBeAssigned:
                                 toBeAssigned.remove(v)
                         if toBeAssigned:
+                            print toBeAssigned
                             continue
                         assignment = {k: v for k, v in newAssignment.items() if type(v) == str or (v > 0)}
                         # print "assignment and weight:"
@@ -798,4 +801,3 @@ def evaluationFunction(assignment, listOfIngredients, baseline):
             realness += featuresWeights[(x, y)]
         
     return realness
-
