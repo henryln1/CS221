@@ -68,6 +68,45 @@ def main(args):
 	else:
 		baseline.main(listOfIngredients, instructions)
 
+#picks a random set of ingredients and generated a random list of instructions to return. 
+
+def generateFakeRecipe():
+	instructions = readInstructions("full_format_recipes.json")
+
+	#file with the list of possible recipes to choose from
+	file = open('allIngredients.txt', 'r')
+	allIngredients = file.readlines()
+	file.close()
+
+	allIngredients = [x for x in allIngredients if x != '\n']
+	for b in range(len(allIngredients)):
+		allIngredients[b] = allIngredients[b][:-1]
+
+	#how many ingredients we want
+	#numberOfIngredients = random.randint(1, len(allIngredients))
+	numberOfIngredients = random.randint(1,7)
+	#choose which ingredients we're using
+	recipeIngredients = random.sample(allIngredients, numberOfIngredients)
+	assignment, valueCSP = trainOnRecipes.main(recipeIngredients, instructions, True)
+	generatedInstructions = trainOnRecipes.translateAssignment(numberOfIngredients, assignment, True)
+
+	returnList = []
+	for i in range(len(generatedInstructions)):
+		currString = generatedInstructions[i]
+		currString = currString[3:]
+		currString = currString[:-1]
+		returnList.append(currString)
+	return returnList
+
+#generate K fake recipes and returns a list of lists
+def generateKFakeRecipes(K):
+	returnList = []
+	for i in range(K):
+		returnList.append(generateFakeRecipe())
+	print returnList
+	return returnList
+
+
 def generateExcelFile():
 	instructions = readInstructions("full_format_recipes.json")
 

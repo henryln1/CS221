@@ -122,7 +122,8 @@ def createCSP(listOfIngredients, allrecipeinstructions):
 						
 	return csp		
 
-def translateAssignment(numIngredients, assignment):
+def translateAssignment(numIngredients, assignment, returnStuff = False):
+	returnList = []
 	reversedAssignment = dict((v,k) for k,v in assignment.iteritems())
 	for i in range(1, numIngredients*2 + 1, 2):
 		vrb = reversedAssignment[i]
@@ -149,8 +150,11 @@ def translateAssignment(numIngredients, assignment):
 				step += " in " + bowlSize + " bowl"
 		step += "."
 		print step
+		returnList.append(step)
+	if (returnStuff):
+		return returnList
 				
-def main(listOfIngredients, allrecipeinstructions):
+def main(listOfIngredients, allrecipeinstructions, returnAssignment = False):
 	csp = createCSP(listOfIngredients, allrecipeinstructions)
 	numIngredients = len(listOfIngredients)
 	#search = recipeUtil.BacktrackingSearch()
@@ -181,6 +185,8 @@ def main(listOfIngredients, allrecipeinstructions):
 			break
 
 	k = recipeUtil.evaluationFunction(assignment, listOfIngredients, False)
-	print k
-	return k
+	if (returnAssignment):
+		return bestAssignment, k
+	else:
+		return k
 
