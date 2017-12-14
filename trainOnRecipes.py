@@ -65,16 +65,15 @@ def createCSP(listOfIngredients, allrecipeinstructions, limit):
 			# weight ingredient immediately after verb
 			def ingredientAndVerb(x, y):
 				if y + 1 in x:
-					return 1.004
+					return 1.002
 				else:
 					return 1
 
 			# generic function for ordering. used for verb ordering
 			def yAfterX(x, y):
 				if y > x:
-					return 1.007
+					return 1.006
 				else:
-					#returning 1 to indicate no weight
 					return 0.999
 
 			def ingredientOrdering(x, y):
@@ -85,6 +84,8 @@ def createCSP(listOfIngredients, allrecipeinstructions, limit):
 							factor *= 1.001
 						if indexY < indexX:
 							factor *= 0.999 # makes sure we don't just assign every ingredient to every verb
+				if len(x) == len(y):
+					factor *= 0.999
 				return factor
 
 			def verbBeforeIngredient(x, y):
@@ -153,7 +154,6 @@ def translateAssignment(limit, assignment, returnStuff = False):
 		else:
 			for index in indices:
 				reversedAssignment[index] += (obj,)
-
 	for i in range(1, limit + 1, 2):
 		vrb = reversedAssignment[i]
 		ings = reversedAssignment[i + 1]
@@ -182,8 +182,10 @@ def translateAssignment(limit, assignment, returnStuff = False):
 			if bowlSize != "":
 				step += " in " + bowlSize + " bowl"
 		step += "."
-		print step
-		returnList.append(step)
+		if not returnStuff:
+			print step
+		else:
+			returnList.append(step)
 	if (returnStuff):
 		return returnList
 				

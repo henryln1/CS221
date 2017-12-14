@@ -89,7 +89,6 @@ def generateFakeRecipe():
 	recipeIngredients = random.sample(allIngredients, numberOfIngredients)
 	assignment, valueCSP = trainOnRecipes.main(recipeIngredients, instructions, True)
 	generatedInstructions = trainOnRecipes.translateAssignment(numberOfIngredients, assignment, True)
-
 	returnList = []
 	for i in range(len(generatedInstructions)):
 		currString = generatedInstructions[i]
