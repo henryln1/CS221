@@ -29,8 +29,8 @@ def binaryClassifier(K):
 	for recipe in fakeRecipes:
 		features = collections.defaultdict(float)
 		for instruction in recipe:
-			#currFeatures = classifierUtil.extractNGramFeatures(instruction, 2)
-			currFeatures = classifierUtil.extractWordFeatures(instruction)
+			currFeatures = classifierUtil.extractNGramFeatures(instruction, 4)
+			#currFeatures = classifierUtil.extractWordFeatures(instruction)
 			for key in currFeatures:
 				features[key] += currFeatures[key]
 

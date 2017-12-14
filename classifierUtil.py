@@ -61,7 +61,7 @@ def stochasticGradientDescent(features, weights, classification, stepsize):
 
 	vector = gradientLossFunction(features, classification)
 
-	for key in weights:
+	for key in features:
 
 		weights[key] = weights[key] - stepsize * vector[key]
 
@@ -80,8 +80,8 @@ def trainClassifier(recipes, classifications, stepsize):
 		for instruction in currRecipe:
 			
 			#extracts features that are tuples of words
-			#newFeatures = extractNGramFeatures(instruction, 2)
-			newFeatures = extractWordFeatures(instruction)
+			newFeatures = extractNGramFeatures(instruction, 4)
+			#newFeatures = extractWordFeatures(instruction)
 			for feat in newFeatures: #add them to the overall feature vector for this recipe
 				features[feat] += newFeatures[feat]
 		#by this point the feature vector for this current recipe is done, so we can run SGD on it
