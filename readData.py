@@ -70,7 +70,7 @@ def main(args):
 
 #picks a random set of ingredients and generated a random list of instructions to return. 
 
-def generateFakeRecipe():
+def generateFakeRecipe(N):
 	instructions = readInstructions("full_format_recipes.json")
 
 	#file with the list of possible recipes to choose from
@@ -84,7 +84,10 @@ def generateFakeRecipe():
 
 	#how many ingredients we want
 	#numberOfIngredients = random.randint(1, len(allIngredients))
-	numberOfIngredients = random.randint(1,7)
+	if N == 0:
+		numberOfIngredients = random.randint(1,7)
+	else:
+		numberOfIngredients = N
 	#choose which ingredients we're using
 	recipeIngredients = random.sample(allIngredients, numberOfIngredients)
 	assignment, valueCSP = trainOnRecipes.main(recipeIngredients, instructions, True)
@@ -98,10 +101,10 @@ def generateFakeRecipe():
 	return returnList
 
 #generate K fake recipes and returns a list of lists
-def generateKFakeRecipes(K):
+def generateKFakeRecipes(K, N):
 	returnList = []
 	for i in range(K):
-		returnList.append(generateFakeRecipe())
+		returnList.append(generateFakeRecipe(N))
 	print returnList
 	return returnList
 
@@ -133,4 +136,3 @@ def generateExcelFile():
 if __name__ == '__main__':
 	args = sys.argv[1:]
 	main(args)
-
