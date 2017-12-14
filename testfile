@@ -1,1 +1,1 @@
-{'lentils': (8, 6, 4, 2), 'heat in': 'saucepan', 'radish': (8, 6, 4, 2), 'cook': 1, 'add': 3, 'liquer': (8, 6, 4, 2), 'simmer': 7, 'add in': 'bowl', 'bowl size': 'large', 'stir': 5, 'pumpkin': (8, 6, 4, 2)}
+{'heat in': 'saucepan', 'flour': (4, 3, 2, 1), 'eggs': (4, 3, 2), 'sugar': (4, 3, 2, 1), 'vanilla': (4,), 'add': 1, 'chocolate': (4, 3, 2), 'add in': 'bowl', 'bowl size': 'large', 'bake': 3, 'stir': 2, 'milk': (4, 3, 2, 1), 'cool': 4}

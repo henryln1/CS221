@@ -14,7 +14,7 @@ def createCSP(listOfIngredients, allrecipeinstructions, limit):
 		verbs = f.readlines()
 	verbs = [x.strip() for x in verbs]
 
-	verbDomain = [i for i in range(1, limit, 2)]
+	verbDomain = [i for i in range(1, limit + 1)]
 	verbDomain.append(0)
 	for verb in verbs:
 		csp.add_variable(verb, verbDomain)
@@ -23,8 +23,7 @@ def createCSP(listOfIngredients, allrecipeinstructions, limit):
 	for ingredient in listOfIngredients:	
 		domain = []
 		prevTuple = tuple()
-		ingRange = limit
-		for i in range(ingRange, 1, -2):
+		for i in range(limit, 0, -1):
 			newTuple = prevTuple + (i,)
 			domain.append(newTuple)
 			prevTuple = newTuple
@@ -65,7 +64,7 @@ def createCSP(listOfIngredients, allrecipeinstructions, limit):
 		
 			# weight ingredient immediately after verb
 			def ingredientAndVerb(x, y):
-				if y + 1 in x:
+				if y in x:
 					return 1.002
 				else:
 					return 1
@@ -81,7 +80,7 @@ def createCSP(listOfIngredients, allrecipeinstructions, limit):
 				factor = 1
 				for indexX in x:
 					for indexY in y:
-						if indexY == 2 + indexX:
+						if indexY == 1 + indexX:
 							factor *= 1.001
 						if indexY < indexX:
 							factor *= 0.999 # makes sure we don't just assign every ingredient to every verb
@@ -147,17 +146,18 @@ def translateAssignment(limit, assignment, returnStuff = False):
 	if not assignment:
 		print "No recipe."
 		return
-	reversedAssignment = collections.defaultdict(tuple)
+	reversedIngs = collections.defaultdict(tuple)
+	reversedVerbs = collections.defaultdict(int)
 	for obj, indices in assignment.items():
 		if type(indices) != tuple:
-			reversedAssignment[indices] = obj
+			reversedVerbs[indices] = obj
 		else:
 			for index in indices:
-				reversedAssignment[index] += (obj,)
-	for i in range(1, limit + 1, 2):
-		vrb = reversedAssignment[i]
-		ings = reversedAssignment[i + 1]
-		step = str(i/2 + 1) + ". " + vrb
+				reversedIngs[index] += (obj,)
+	for i in range(1, limit + 1, 1):
+		vrb = reversedVerbs[i]
+		ings = reversedIngs[i]
+		step = str(i) + ". " + vrb
 		first = True
 		numIngs = len(ings)
 		for j in range(0, numIngs):
@@ -191,7 +191,7 @@ def translateAssignment(limit, assignment, returnStuff = False):
 				
 def main(listOfIngredients, allrecipeinstructions, returnAssignment = False):
 	numIngredients = len(listOfIngredients)
-	limit = numIngredients * 2 if numIngredients < 5 else 8
+	limit = numIngredients if numIngredients < 5 else 4
 	csp = createCSP(listOfIngredients, allrecipeinstructions, limit)
 	#search = recipeUtil.BacktrackingSearch()
 	search = recipeUtil.BeamSearch()

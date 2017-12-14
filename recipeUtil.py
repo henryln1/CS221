@@ -535,15 +535,16 @@ class BeamSearch():
                     if len(self.optimalAssignment) == 0 or weight >= self.optimalWeight:
                         #print currentAssignment
                         # checks if every spot is assigned
-                        toBeAssigned = [i for i in range(1, self.limit + 1, 2)]
+                        toBeAssigned = [i for i in range(1, self.limit + 1)]
+                        toBeAssigned += [i for i in range(1, self.limit + 1)]
                         for k in currentAssignment:
                             v = currentAssignment[k]
-                            if "mins" in k:
-                                continue
-                            if type(v) is str:
-                                continue
                             if v in toBeAssigned:
                                 toBeAssigned.remove(v)
+                            elif type(v) is tuple:
+                                for value in v:
+                                    if value in toBeAssigned:
+                                        toBeAssigned.remove(value)
                         if toBeAssigned:
                             print toBeAssigned
                             continue
