@@ -10,9 +10,9 @@ def signNumber(x):
 	else:
 		return -1
 
-def binaryClassifier(K):
+def binaryClassifier(K, N = 0):
 
-	fakeAndRealRecipes, classification = classifierUtil.generateEntireDataset(K)
+	fakeAndRealRecipes, classification = classifierUtil.generateEntireDataset(K, N)
 
 	stepsize = 1.0/len(fakeAndRealRecipes)
 
@@ -42,4 +42,6 @@ def binaryClassifier(K):
 
 	print "Percentage Correct: ", float(correctCount)/total
 
-binaryClassifier(100)
+
+# runs binary classifier by training on a dataset with K recipes and N ingredients, then tests against 30 fake recipes and outputs the percentage it got correct
+binaryClassifier(100, 5)
