@@ -219,8 +219,9 @@ def main(listOfIngredients, allrecipeinstructions, returnAssignment = False):
 			break
 
 	#k = recipeUtil.evaluationFunction(assignment, listOfIngredients, False)
-	#if (returnAssignment):
-	#	return bestAssignment, k
-	#else:
-	#	return k
+	k = 1
+	if (returnAssignment):
+		return bestAssignment, k
+	else:
+		return k
 

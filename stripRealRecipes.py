@@ -47,7 +47,7 @@ def getStrippedRealRecipes():
 	return strippedRecipes
 
 
-print getStrippedRealRecipes()
+#print getStrippedRealRecipes()
 
 
 
