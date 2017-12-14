@@ -40,6 +40,6 @@ def binaryClassifier(K):
 			correctCount += 1
 		total += 1
 
-		print "Percentage Correct: ", float(correctCount)/total
+	print "Percentage Correct: ", float(correctCount)/total
 
 binaryClassifier(100)
