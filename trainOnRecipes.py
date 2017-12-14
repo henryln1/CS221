@@ -41,8 +41,9 @@ def createCSP(listOfIngredients, allrecipeinstructions, limit):
 	verbsSet = set(verbs)
 	# qualifiers for our sentences
 	thingsToAddTo = ["bowl", "skillet", "pot", "kettle", "saucepan", "pan", ""]
+	thingsToHeatIn = ["skillet", "pot", "kettle", "saucepan", "pan", ""]
 	csp.add_variable("add in", thingsToAddTo)
-	csp.add_variable("heat in", thingsToAddTo)
+	csp.add_variable("heat in", thingsToHeatIn)
 	bowlSizes = ["small", "medium", "large", ""]
 	csp.add_variable("bowl size", bowlSizes)
 	addCounts = collections.defaultdict(int)
@@ -118,7 +119,7 @@ def createCSP(listOfIngredients, allrecipeinstructions, limit):
 						for noun in thingsToAddTo:
 							addCounts[noun] += (noun in sentence)
 					elif vrb == "cook" or vrb == "boil" or vrb == "simmer" or vrb == "chill" or vrb == "refrigerate" or vrb == "bake" or vrb == "toast":
-						for noun in thingsToAddTo:
+						for noun in thingsToHeatIn:
 							heatCounts[noun] += (noun in sentence)
 					if vrb == "beat" or vrb == "add" or vrb == "combine" or vrb =="mix" or vrb =="whisk" or vrb =="pour":
 						for size in bowlSizes:
@@ -139,7 +140,6 @@ def createCSP(listOfIngredients, allrecipeinstructions, limit):
 	for size in sizeCounts:
 		csp.add_unary_factor("bowl size", lambda x: 1 + (x == size) * sizeCounts[size] * .001)
 
-						
 	return csp		
 
 def translateAssignment(limit, assignment, returnStuff = False):
