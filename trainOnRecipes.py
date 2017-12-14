@@ -75,7 +75,7 @@ def createCSP(listOfIngredients, allrecipeinstructions, limit):
 					return 1.007
 				else:
 					#returning 1 to indicate no weight
-					return 1
+					return 0.999
 
 			def ingredientOrdering(x, y):
 				factor = 1
