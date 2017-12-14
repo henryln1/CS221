@@ -96,14 +96,14 @@ def trainClassifier(recipes, classifications, stepsize):
 import stripRealRecipes
 
 #randomly generates a dataset to try and train the classifier on
-def generateEntireDataset(size):
+def generateEntireDataset(size, numIngredients):
 
 	instructionsList = []
 	classification = []
 
 	numberFakeRecipes = random.randint(1, size)
 
-	fakeRecipeList = readData.generateKFakeRecipes(numberFakeRecipes)
+	fakeRecipeList = readData.generateKFakeRecipes(numberFakeRecipes, numIngredients)
 
 	for  i in range(len(fakeRecipeList)):
 		instructionsList.append(fakeRecipeList[i])
