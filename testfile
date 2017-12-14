@@ -1,1 +1,1 @@
-{'heat in': 'saucepan', 'flour': (4, 3, 2, 1), 'eggs': (4, 3, 2), 'sugar': (4, 3, 2, 1), 'vanilla': (4,), 'add': 1, 'chocolate': (4, 3, 2), 'add in': 'bowl', 'bowl size': 'large', 'bake': 3, 'stir': 2, 'milk': (4, 3, 2, 1), 'cool': 4}
+{'bell pepper': (4, 3, 2, 1), 'heat in': 'skillet', 'beef': (4, 3, 2, 1), 'lychee': (4, 3, 2, 1), 'bacon': (4, 3, 2, 1), 'pour': 2, 'add': 1, 'simmer': 4, 'add in': 'skillet', 'bowl size': 'large', 'stir': 3}
