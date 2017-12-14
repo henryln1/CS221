@@ -157,7 +157,7 @@ def translateAssignment(limit, assignment, returnStuff = False):
 	for i in range(1, limit + 1, 1):
 		vrb = reversedVerbs[i]
 		ings = reversedIngs[i]
-		step = str(i) + ". " + vrb
+		step = str(i) + ". " + str(vrb)
 		first = True
 		numIngs = len(ings)
 		for j in range(0, numIngs):
