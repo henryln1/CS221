@@ -1,5 +1,6 @@
 import random
 import recipeUtil 
+from trainOnRecipes import *
 
 def main(listOfIngredients, allrecipeinstructions):
     assignment = {}
@@ -21,6 +22,18 @@ def main(listOfIngredients, allrecipeinstructions):
         assignment[verbs[verb]] = verbIndex
         verbs.remove(verbs[verb])
 
-    print assignment
+
+    order = ['' for i in range(len(assignment) + 1)]
+    for x in assignment:
+        order[assignment[x]] = x
+
+    i = 1
+    j = 1
+    while i < len(assignment):
+        print str(j) + '. ' + order[i] + ' ' + order[i + 1]
+        i += 2
+        j += 1
+
     k = recipeUtil.evaluationFunction(assignment, listOfIngredients, True)
+   
     return k
