@@ -226,4 +226,3 @@ def main(listOfIngredients, allrecipeinstructions, returnAssignment = False):
 		return bestAssignment, k
 	else:
 		return k
-
