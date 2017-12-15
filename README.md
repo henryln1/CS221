@@ -3,6 +3,7 @@
 Nikki Taylor, Kaylee Bement, Henry Lin
 
 Files:
+
 allIngredients.txt: text file containing a list of ingredients to pull from when geneating many fake recipes
 
 bananaBread.txt: text file containing the list of ingredients used to make banana bread
