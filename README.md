@@ -2,6 +2,8 @@
 221 final project
 Nikki Taylor, Kaylee Bement, Henry Lin
 
+The code in this repository is for our 221 project, generating recipe instructions using a Constraint Satisfaction Problem (CSP). It has several util.py files that contain necessary functions to run the CSP and evaluate the results. There are also supplementary files that have example ingredient lists and also a csv file with the data necessary to train the CSV.
+
 Files:
 
 allIngredients.txt: text file containing a list of ingredients to pull from when geneating many fake recipes
