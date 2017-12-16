@@ -16,9 +16,7 @@ binaryClassification.py: code to run our binary classifier, trains on a set of 1
 
 classiferUtil.py: helper functions for binary classification
 
-cooking_verbs.txt, cooking_verbs_all.txt, cooking_verbs_arbitrary.txt: different lists of verbs to use as variables in the CSP
-
-createNewJson.py: used to turn the csv data into a json
+cooking_verbs.txt: list of commonly used verbs in recipes to use as variables in the CSP
 
 enchilada.txt: ingredients to make an enchilada
 
@@ -38,7 +36,7 @@ stripRealRecipes.py: code that strips formatting from dataset so real and fake r
 
 testIngredients*.txt: lists of ingredients used to test the output of the csp
 
-trainOnRecipes.py: runs fake recipe generation and creates the CSP and translates the output
+trainOnRecipes.py: creates the CSP and translates the output
 
 Commands:
 

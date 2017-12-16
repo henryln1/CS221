@@ -1,1 +1,1 @@
-{'bell pepper': (4, 3, 2, 1), 'heat in': 'skillet', 'beef': (4, 3, 2, 1), 'lychee': (4, 3, 2, 1), 'bacon': (4, 3, 2, 1), 'pour': 2, 'add': 1, 'simmer': 4, 'add in': 'skillet', 'bowl size': 'large', 'stir': 3}
+{'chocolate chips': (4, 3, 2, 1), 'butter': (4, 3, 2), 'heat in': 'skillet', 'bananas': (4, 3), 'stir': 3, 'baking soda': (4, 3, 2, 1), 'salt': (4, 3, 2, 1), 'sugar': (4, 3, 2), 'cook': 1, 'add': 2, 'simmer': 4, 'flour': (4, 3), 'add in': 'bowl', 'bowl size': 'large', 'egg': (4, 3)}

@@ -28,7 +28,6 @@ def createCSP(listOfIngredients, allrecipeinstructions, limit):
 			domain.append(newTuple)
 			prevTuple = newTuple
 		csp.add_variable(ingredient, domain)
-
 	
 	# ensure no verbs are given the same assignment
 	for verb in verbs:	
@@ -103,10 +102,7 @@ def createCSP(listOfIngredients, allrecipeinstructions, limit):
 				for vrb in verbsInSentence:
 					# add binary factor here with function: if ingredient == verb + 1 then return a high number, else return a lower number
 					csp.add_binary_factor(ing, vrb, ingredientAndVerb)				
-					# add binary factor to weight for verb coming before ingredient		
-					# if sentence.index(vrb) < sentence.index(ing):
-					# 	csp.add_binary_factor(ing, vrb, verbBeforeIngredient)
-					# add binary factor to weight verb ordering
+					# add binary factor for verb ordering
 					if firstVrb != None and firstVrb != vrb:
 						csp.add_binary_factor(firstVrb, vrb, yAfterX)
 					elif firstVrb == None:
@@ -117,7 +113,7 @@ def createCSP(listOfIngredients, allrecipeinstructions, limit):
 					if vrb == "add" or vrb == "combine" or vrb == "mix" or vrb == "whisk" or vrb == "pour" or vrb == "stir":
 						for noun in thingsToAddTo:
 							addCounts[noun] += (noun in sentence)
-					elif vrb == "cook" or vrb == "boil" or vrb == "simmer" or vrb == "chill" or vrb == "refrigerate" or vrb == "bake" or vrb == "toast":
+					elif vrb == "cook" or vrb == "boil" or vrb == "simmer" or vrb == "bake" or vrb == "toast":
 						for noun in thingsToHeatIn:
 							heatCounts[noun] += (noun in sentence)
 					if vrb == "beat" or vrb == "add" or vrb == "combine" or vrb =="mix" or vrb =="whisk" or vrb =="pour":
@@ -166,21 +162,17 @@ def translateAssignment(limit, assignment, returnStuff = False):
 			if j == numIngs - 1 and numIngs != 1:
 				step += " and"
 			step += " " + ings[j]
-		if vrb == "add" or vrb == "combine" or vrb == "mix" or vrb == "whisk" or vrb == "pour" or vrb == "stir":
+		if vrb == "add" or vrb == "combine" or vrb == "mix" or vrb == "whisk" or vrb == "pour" or vrb == "stir" or vrb == "beat":
 			noun = assignment["add in"]
 			if noun == "bowl" and assignment["bowl size"] != "":
 				noun = assignment["bowl size"] + " " + noun
 			inOrTo = " in " if vrb != "add" else " to "
 			if noun != "":
 				step += inOrTo + noun
-		elif vrb == "cook" or vrb == "boil" or vrb == "simmer" or vrb == "chill" or vrb == "refrigerate" or vrb == "bake" or vrb == "toast" or vrb == "melt":
+		elif vrb == "cook" or vrb == "boil" or vrb == "simmer" or vrb == "bake" or vrb == "toast" or vrb == "melt":
 			noun = assignment["heat in"]
 			if noun != "":
 				step += " in " + noun
-		elif vrb == "beat":
-			bowlSize = assignment["bowl size"]
-			if bowlSize != "":
-				step += " in " + bowlSize + " bowl"
 		step += "."
 		if not returnStuff:
 			print step
@@ -193,21 +185,12 @@ def main(listOfIngredients, allrecipeinstructions, returnAssignment = False):
 	numIngredients = len(listOfIngredients)
 	limit = numIngredients if numIngredients < 5 else 4
 	csp = createCSP(listOfIngredients, allrecipeinstructions, limit)
-	#search = recipeUtil.BacktrackingSearch()
 	search = recipeUtil.BeamSearch()
 	search.initialize(50)
-	#search.reset_results()
-	# toggle optimizations (ac3, etc) below
- 	#print csp.binaryFactors
-	# print csp.unaryFactors
-	#search.solve(csp, len(listOfIngredients))
 	search.solve(csp, limit, True, True)
 	assignments = [search.optimalAssignment]
-	maxPrint = 20
-	count = 0
 	bestAssignment = []
 	for assign in assignments:
-		count += 1
 		print "Raw Assignment:"
 		assignment = {k: v for k, v in assign.items() if type(v) == str or v > 0}
 		print assignment
@@ -217,11 +200,9 @@ def main(listOfIngredients, allrecipeinstructions, returnAssignment = False):
 		f1=open('testfile', 'w+')
 		print >> f1, assignment
 		f1.close()
-		if count > maxPrint:
-			break
-
-	#k = recipeUtil.evaluationFunction(assignment, listOfIngredients, False)
-	k = 1
+	
+	k = recipeUtil.evaluationFunction(assignment, listOfIngredients, False)
+	print k
 	if (returnAssignment):
 		return bestAssignment, k
 	else:

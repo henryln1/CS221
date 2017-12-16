@@ -28,7 +28,6 @@ def binaryClassifier(K, N = 0):
 			features = collections.defaultdict(float)
 			for instruction in recipe:
 				currFeatures = classifierUtil.extractNGramFeatures(instruction, 4)
-				#currFeatures = classifierUtil.extractWordFeatures(instruction)
 				for key in currFeatures:
 					features[key] += currFeatures[key]
 

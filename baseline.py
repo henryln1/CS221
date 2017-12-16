@@ -25,15 +25,17 @@ def main(listOfIngredients, allrecipeinstructions):
 
     order = ['' for i in range(len(assignment) + 1)]
     for x in assignment:
-        order[assignment[x]] = x
+        if assignment[x] != 0:
+            order[assignment[x] - 1] = x
 
     i = 1
     j = 1
     while i < len(assignment):
-        print str(j) + '. ' + order[i] + ' ' + order[i + 1]
+        print str(j) + '. ' + order[i - 1] + ' ' + order[i]
         i += 2
         j += 1
 
     k = recipeUtil.evaluationFunction(assignment, listOfIngredients, True)
+    print k
    
     return k

@@ -51,7 +51,6 @@ class CSP:
             self.variables.append(var)
             self.unaryFactors[var] = None
             self.binaryFactors[var] = dict()
-            #raise Exception("Variable name already exists: %s" % str(var))
         self.values[var] = domain
 
 
@@ -131,6 +130,11 @@ class CSP:
 # Usage:
 #   search = BacktrackingSearch()
 #   search.solve(csp)
+
+# IMPORTANT NOTE: 
+# This code is no longer used. It will not be compatible with our current CSP because we stopped
+# utilizing it once we realized that Beam Search is much better. 
+# We decided to leave it since it was important in the beginning stages of our project.
 class BacktrackingSearch():
 
     def reset_results(self):
@@ -171,7 +175,7 @@ class BacktrackingSearch():
             print "Found %d optimal assignments with weight %f in %d operations" % \
                 (self.numOptimalAssignments, self.optimalWeight, self.numOperations)
             print "First assignment took %d operations" % self.firstAssignmentNumOperations
-            #print self.optimalAssignment
+            print self.optimalAssignment
         else:
             print "No solution was found."
 
@@ -431,14 +435,12 @@ class BeamSearch():
     #Most of the code is taken from backtracking search and the main change is that instead of keeping track of the current assignment, we keep a list
     # of all possible assignments we are considering. Beam() then recurses on a subset of those each time.
 
-    #numOperations = 0
-    #K = 0
     optimalAssignment = {}
 
     numOptimalAssignments = 0
     numAssignments = 0
 
-            #how many layers of the tree basically
+    #how many layers of the tree basically
     numOperations = 0
     optimalWeight = 0
 
@@ -447,9 +449,7 @@ class BeamSearch():
     allAssignments = []
     K = 0
     started = False
-    #attempt at adding human ingenuity
 
-    epsilon = 0.3
     def initialize(self, number):
         self.K = number
 
@@ -477,7 +477,6 @@ class BeamSearch():
             print "Found %d optimal assignments with weight %f in %d operations" % \
                 (self.numOptimalAssignments, self.optimalWeight, self.numOperations)
             print "First assignment took %d operations" % self.firstAssignmentNumOperations
-            #print self.optimalAssignment
         else:
             print "No solution was found."
 
@@ -506,10 +505,6 @@ class BeamSearch():
         self.limit = limit
 
         self.beam([]) 
-        prob = random.uniform(0.0,1.0)
-        if (prob < self.epsilon) and self.allAssignments:
-            print "epsilon"
-            print random.choice(self.allAssignments)
 
         self.print_stats()
 
@@ -517,7 +512,6 @@ class BeamSearch():
 
         print self.numOperations
         self.numOperations += 1
-        #if (self.numOperations > 10): return
         latestNumAssigned = 0
         newAssignmentsToChoose = []
         if (currentPossibleAssignments):
@@ -530,10 +524,8 @@ class BeamSearch():
                     for var in self.csp.variables:
                         if (var in currentAssignment):
                             newAssignment[var] = currentAssignment[var]
-                    #print currentAssignment
                     self.allAssignments.append(newAssignment)
                     if len(self.optimalAssignment) == 0 or weight >= self.optimalWeight:
-                        #print currentAssignment
                         # checks if every spot is assigned
                         verbAssignments = [i for i in range(1, self.limit + 1)]
                         ingAssignments = [i for i in range(1, self.limit + 1)]
@@ -548,9 +540,6 @@ class BeamSearch():
                         if verbAssignments or ingAssignments:
                             continue
                         assignment = {k: v for k, v in newAssignment.items() if type(v) == str or (v > 0)}
-                        # print "assignment and weight:"
-                        #print assignment
-                        # print weight
 
                         if weight == self.optimalWeight:
                             self.numOptimalAssignments += 1
@@ -565,20 +554,13 @@ class BeamSearch():
                 #this following code happens when the assignment is not complete yet
                 variables = self.get_all_unassigned(currentAssignment)
 
-                #currently ignoring ac3 and just doing regular beam search
-                #try each combination of variable + value
-
                 for var in variables:
                     ordered_values = self.domains[var]
                     for val in ordered_values:
                         deltaWeight = self.get_delta_weight(currentAssignment,var, val)
-                        # print currentAssignment
-                        # print deltaWeight
                         if deltaWeight > 0:
                             currentAssignment[var] = val
                             newAssignmentsToChoose.append((dict(currentAssignment), numberAssigned + 1, weight * deltaWeight))
-                           # print str(weight * deltaWeight)
-                           # print newAssignmentsToChoose
                             del currentAssignment[var]
         elif not self.started: #when we are at beginning and there are no assignments to try yet
             self.started = True
@@ -597,20 +579,15 @@ class BeamSearch():
                         currentAssignment[var] = val
                         newAssignmentsToChoose.append((dict(currentAssignment), 1, deltaWeight))
                         del currentAssignment[var]
-            #print newAssignmentsToChoose
         #need to now pick the K best assignments and go from there
         #sorts by the weight
         if latestNumAssigned == self.csp.numVars:
             return
         newAssignmentsToChoose.sort(key = lambda tup:tup[2])
-        #print "NEW ASSIGNMENTS"
-        #print newAssignmentsToChoose
 
         bestOnes = newAssignmentsToChoose[len(newAssignmentsToChoose) - self.K:]
         if not bestOnes:
             return
-        #print bestOnes
-        #recurses
         self.beam(bestOnes)
 
 
@@ -719,7 +696,6 @@ def generateFeatureWeights(listOfIngredients):
     ingredients = listOfIngredients
     thingsToAddTo = ["bowl", "skillet", "pot", "kettle", "saucepan", "pan"]
     thingsToHeatIn = ["skillet", "pot", "kettle", "saucepan", "pan"]
-    cookMinutes = [i for i in range(1, 61)]
     bowlSizes = ["small", "medium", "large"]
 
     for i in range(1, len(dictionaryInstructions)):
@@ -731,29 +707,22 @@ def generateFeatureWeights(listOfIngredients):
                 relevantIngredients = set.intersection(set(ingredients), set(sentenceWords))
                 relevantNouns = set.intersection(set(thingsToAddTo), set(sentenceWords))
                 relevantNouns2 = set.intersection(set(thingsToHeatIn), set(sentenceWords))
-                relevantMins = set.intersection(set(cookMinutes), set(sentenceWords))
                 relevantSizes = set.intersection(set(bowlSizes), set(sentenceWords))
 
                 for j in relevantVerbs:
                     for k in relevantIngredients:
                         featuresWeightsDict[(j, k)] += 1
-                    if j == "add" or j == "combine" or j == "mix" or j == "whisk" or j == "pour" or j == "stir":
+                    if j == "add" or j == "combine" or j == "mix" or j == "whisk" or j == "pour" or j == "stir" or j == "beat":
                         for l in relevantNouns:
                             featuresWeightsDict[(j, l)] += 1
                         featuresWeightsDict[(j, "")] = 0
-                    elif j == "heat":
-                        for l in relevantNouns2:
-                            featuresWeightsDict[(j, l)] += 1
-                        featuresWeightsDict[(j, "")] = 0
-                    elif j == "cook" or j == "boil" or j == "simmer" or j == "chill" or j == "refrigerate" or j == "bake":
-                        for l in relevantMins:
-                            featuresWeightsDict[(j, l)] += 1
-                        featuresWeightsDict[(j, 0)] = 0
-                    if j == "beat" or j == "add" or j == "combine" or j =="mix" or j =="whisk" or j =="pour":
                         for l in relevantSizes:
                             featuresWeightsDict[(j, l)] += 1
                         featuresWeightsDict[(j, "")] = 0
-
+                    elif j == "cook" or j == "boil" or j == "simmer" or j == "bake" or j == "melt" or j == "toast":
+                        for l in relevantNouns2:
+                            featuresWeightsDict[(j, l)] += 1
+                        featuresWeightsDict[(j, "")] = 0
 
                 ingredientsInList = separateIngredients(sentenceWords, listOfIngredients)
 
@@ -761,7 +730,6 @@ def generateFeatureWeights(listOfIngredients):
                     for m in range(l + 1, len(ingredientsInList) + 1):
                         featuresWeightsDict[(l,m)] += 1
 
-    # print featuresWeightsDict
     return featuresWeightsDict
 
 def evaluationFunction(assignment, listOfIngredients, baseline):
@@ -770,34 +738,41 @@ def evaluationFunction(assignment, listOfIngredients, baseline):
     realness = 0
     #generate features and weights
     numIngredients = len(listOfIngredients)
-    orderedListIngredients = []
 
     featuresWeights = generateFeatureWeights(listOfIngredients)
-    currentVerbIndex = 1
-    currentIngredientIndex = 2
-    reversedAssignment = dict((v,k) for k,v in assignment.iteritems())
+    reversedIngs = collections.defaultdict(tuple)
+    reversedVerbs = collections.defaultdict(int)
+    if not baseline:
+        for obj, indices in assignment.items():
+            if type(indices) != tuple:
+                reversedVerbs[indices] = obj
+            else:
+                for index in indices:
+                    reversedIngs[index] += (obj,)
+    else:
+        for obj, index in assignment.items():
+            if index % 2 == 0:
+                reversedIngs[index/2] = obj
+            else:
+                reversedVerbs[index/2 + 1] = obj
+
     for index in range(1, numIngredients + 1):
-        currentVerb = reversedAssignment[index * 2 - 1]
-        currentIngredient = reversedAssignment[index * 2]
-        realness += featuresWeights[(currentVerb, currentIngredient)]
-        orderedListIngredients.append(currentIngredient)
+        currentVerb = reversedVerbs[index]
+        currentIngredients = reversedIngs[index]
+        for currentIngredient in currentIngredients:
+            realness += featuresWeights[(currentVerb, currentIngredient)]
         if not baseline:
-            noun = "bowl"
             if currentVerb == "add" or currentVerb == "combine" or currentVerb == "mix" or currentVerb == "whisk" or currentVerb == "pour" or currentVerb == "stir":
                 noun = assignment["add in"]
                 realness += featuresWeights[(currentVerb, noun)]
-            elif currentVerb == "heat":
-                noun = assignment["heat in"]
-                realness += featuresWeights[(currentVerb, noun)]
-            elif currentVerb == "cook" or currentVerb == "boil" or currentVerb == "simmer" or currentVerb == "chill" or currentVerb == "refrigerate" or currentVerb == "bake":
-                mins = assignment["mins"]
-                realness += featuresWeights[(currentVerb, mins)]
-            if noun == "bowl" and (currentVerb == "beat" or currentVerb == "add" or currentVerb == "combine" or currentVerb == "whisk" or currentVerb == "pour" or currentVerb == "stir"):
                 bowlSize = assignment["bowl size"]
                 realness += featuresWeights[(currentVerb, bowlSize)]
+            elif currentVerb == "cook" or currentVerb == "boil" or currentVerb == "simmer" or currentVerb == "bake" or currentVerb == "melt" or currentVerb == "toast":
+                noun = assignment["heat in"]
+                realness += featuresWeights[(currentVerb, noun)]
 
     for x in range(numIngredients):
         for y in range(x + 1, numIngredients + 1):
             realness += featuresWeights[(x, y)]
         
-    return realness
+    return realness/numIngredients
